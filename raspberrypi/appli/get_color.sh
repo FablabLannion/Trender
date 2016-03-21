@@ -6,7 +6,7 @@
 # author        : jerome.labidurie@orange.com, julien.jacques@nokia.com
 # date          : 20160228
 # version       : 0.1  
-# usage         : bash get_color.sh
+# usage         : bash get_color.sh <URL> [DBG_flag]
 # notes         : lirc must be available on the platform and running correctly
 # bash_version  : 4.3.30(1)-release
 #
@@ -27,9 +27,6 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-DBG_IR=0
-SERVER="http://galicloud.roozeec.fr/requests/get_last/murlockinthesky/jenkins"
-
 # assuming TheCube, KEY_POWER, KEY_RED, KEY_GREEN are listed in:
 # /etc/lirc/lircd.conf
 #    Default lircd configuration file. It should contain all the remotes,
@@ -40,10 +37,10 @@ SERVER="http://galicloud.roozeec.fr/requests/get_last/murlockinthesky/jenkins"
 function send_by_IR() {
     command=$1
     dbg_flag=$2
-    echo "command=$command"
-    echo "dbg_flag=$dbg_flag"
+    log "command=${command}"
+    log "dbg_flag=${dbg_flag}"
     if [ "$dbg_flag" -ne 0 ]; then
-        echo "irsend send_once TheCube $command"
+        log "irsend send_once TheCube ${command}"
     else
         irsend send_once TheCube $command
     fi
@@ -53,56 +50,88 @@ function send_by_IR() {
 trap theCube_switch_off INT
 
 function theCube_switch_off() {
-        echo "** Switch off theCube"
-        send_by_IR KEY_POWER $DBG_IR
+        log "** Switch off theCube"
+        send_by_IR KEY_POWER $DBG_flag
         echo -e "\nbye!\n    make sweet dreams...\n"
         exit 0
 }
 
+# exit_message(exit_code)
+function exit_message() {
+    exit_code=$1
+    echo "  Usage :: $0 <URL> [DBG_flag]"
+    if [ "$exit_code" -ne 0 ]; then exit ${exit_code}; fi
+}
 
+# log(msg)
+function log() {
+    msg=$1
+    if [ "$DBG_flag" -ne 0 ]; then
+        echo -n "[DEBUG] "
+    fi
+    echo "`date +"%Y-%m-%d_%H:%M:%S"`  $msg"
+}
 
 ###
 ### Main section
 ###
 
-send_by_IR KEY_POWER $DBG_IR
+if [ "$#" -lt 1 ]; then
+    exit_message 0
+fi
+SERVER=$1
+
+DBG_flag=0
+if [ "$#" -eq 2 ] && [ "$2" -ne 0 ]; then
+    DBG_flag=1
+elif [ "$#" -ne 1 ]; then
+    exit_message 1
+fi
+
+log "SERVER=$SERVER"
+log "DBG_flag=$DBG_flag"
+
+send_by_IR KEY_POWER $DBG_flag
 
 while [ 1 ]
 do
-    # res=( $(curl -s -w "\n%{http_code}\n" http://galicloud.roozeec.fr/requests/get_last/murlockinthesky/jenkins) )
-	echo "start curl"
+    log "start curl"
+    log "curl -s -w \"\n%{http_code}\n\" ${SERVER}"
     res=( $(curl -s -w "\n%{http_code}\n" ${SERVER}) )
-    echo "curl ok "
+    log "curl ok (ret=$?)"
     last=$((${#res}-1))
     http_code=${res[$last]}
 
     if [ "$http_code" = 200 ]
     then
         val=${res[0]}
+
+        log "val=$val"
+        if [ "$val" -le 80 ]
+        then
+            send_by_IR KEY_RED $DBG_flag
+        elif [ "$val" -ge 90 ]
+        then
+            send_by_IR KEY_GREEN $DBG_flag
+        else
+            log "val unknown (${val})"
+        fi
+
     else
-        echo "Erreur GET: $http_code"
-        exit 1
+        echo "GET Error: http_code=${http_code}"
+        # exit 1
     fi
 
-    echo "val=$val"
-    if [ "$val" -le 80 ]
-    then
-        send_by_IR KEY_RED $DBG_IR
-    elif [ "$val" -ge 90 ]
-    then
-        send_by_IR KEY_GREEN $DBG_IR
-    else
-        echo "val unknown (${val})"
-    fi
 
-    if [ "$DBG_IR" -ne 0 ]; then
-        echo "take a nap..."
+
+    if [ "$DBG_flag" -ne 0 ]; then
+        log "take a nap..."
         sleep 5
     else
-        sleep 30
+        sleep 60
     fi
 
 done
 
-# send_by_IR KEY_POWER $DBG_IR # <- trapped by theCube_switch_off
+# send_by_IR KEY_POWER $DBG_flag # <- trapped by theCube_switch_off
 
