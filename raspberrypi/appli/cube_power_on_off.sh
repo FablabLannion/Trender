@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # title         : cube_power_on_off.sh
-# description   : This script is part of the Trender project. 
+# description   : This script is part of the Trender project.
 #                 http://fablab-lannion.org:8080/wiki/index.php?title=Trender
-# author        : jerome.labidurie@orange.com, julien.jacques@nokia.com
+# author        : jerome@labidurie.fr, julien.jacques@nokia.com
 # date          : 20160228
-# version       : 0.1  
-# usage         : bash cube_power_on_off.sh 
+# version       : 0.1
+# usage         : bash cube_power_on_off.sh
 # notes         : lirc must be available on the platform and running correctly
 # bash_version  : 4.3.30(1)-release
 #
