@@ -1,4 +1,4 @@
-update=lun. 27 juin 2016 20:35:14 CEST
+update=lun. 27 juin 2016 20:42:59 CEST
 version=1
 last_client=kicad
 [pcbnew]
@@ -20,9 +20,14 @@ SolderMaskMinWidth=0.000000000000
 DrawSegmentWidth=0.200000000000
 BoardOutlineThickness=0.100000000000
 ModuleOutlineThickness=0.150000000000
+[cvpcb]
+version=1
+NetIExt=net
+[general]
+version=1
 [eeschema]
 version=1
-LibDir=
+LibDir=lib
 [eeschema/libraries]
 LibName1=power
 LibName2=device
@@ -53,8 +58,4 @@ LibName26=opto
 LibName27=atmel
 LibName28=contrib
 LibName29=valves
-[cvpcb]
-version=1
-NetIExt=net
-[general]
-version=1
+LibName30=lib/WS2812B
