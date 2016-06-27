@@ -37,10 +37,10 @@ encoding utf-8
 Sheet 1 1
 Title "SweetTime"
 Date "2016-06-27"
-Rev "1.0"
+Rev "2.0"
 Comp "Galilabs"
-Comment1 ""
-Comment2 ""
+Comment1 "Fablab Lannion"
+Comment2 "http://u.dinask.eu/trender"
 Comment3 ""
 Comment4 ""
 $EndDescr

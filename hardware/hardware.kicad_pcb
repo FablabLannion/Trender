@@ -13,6 +13,15 @@
   )
 
   (page A4)
+  (title_block
+    (title SweetTime)
+    (date 2016-06-27)
+    (rev 2.0)
+    (company Galilabs)
+    (comment 1 "Fablab Lannion")
+    (comment 2 http://u.dinask.eu/trender)
+  )
+
   (layers
     (0 F.Cu signal)
     (31 B.Cu signal)
