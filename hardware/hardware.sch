@@ -338,8 +338,6 @@ Text Label 850  1800 2    60   ~ 0
 D2
 Text Label 7050 1300 0    60   ~ 0
 D5
-Text Label 6650 850  0    60   ~ 0
-D6
 NoConn ~ 9450 1250
 NoConn ~ 9450 1350
 NoConn ~ 9450 1550
@@ -384,4 +382,7 @@ F 3 "" H 2050 1100 60  0000 C CNN
 	1    2050 1100
 	1    0    0    -1  
 $EndComp
+Text Label 6650 850  0    60   ~ 0
++3.3V
+NoConn ~ 10300 1350
 $EndSCHEMATC
