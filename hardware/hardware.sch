@@ -336,9 +336,9 @@ Wire Wire Line
 	6300 1900 6300 1650
 Text Label 850  1800 2    60   ~ 0
 D2
-Text Label 6650 850  0    60   ~ 0
-D5
 Text Label 7050 1300 0    60   ~ 0
+D5
+Text Label 6650 850  0    60   ~ 0
 D6
 NoConn ~ 9450 1250
 NoConn ~ 9450 1350
