@@ -9,8 +9,10 @@ const char PAGE_AdminMainPage[]  = R"=====(
 <strong>Administration</strong>
 <hr>
 <a href="config"   style="width:250px"  class="btn btn--m btn--blue" >Configuration</a><br>
-<a href="color"   style="width:250px"  class="btn btn--m btn--blue" >Color</a><br>
+<!-- <a href="color"   style="width:250px"  class="btn btn--m btn--blue" >Color</a><br> -->
 <a href="info"   style="width:250px"  class="btn btn--m btn--blue" >Network Information</a><br>
+<a href="start"   style="width:110px"  class="btn btn--m btn--blue" >Start</a>
+<a href="stop"   style="width:110px"  class="btn btn--m btn--blue" >Stop</a><br>
 
 
 <script>
