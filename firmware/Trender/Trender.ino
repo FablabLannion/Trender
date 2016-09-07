@@ -128,13 +128,13 @@ void tkTrender() {
     unsigned long now = millis();
 
     if (now < (startTime + (config.dur*60000)*config.per[0]/100)) {
-        setColor(config.colors[0]);
+        gotoColor(config.colors[0], 15);
     } else
     if (now < (startTime + (config.dur*60000)*config.per[1]/100 )) {
-        setColor(config.colors[1]);
+        gotoColor(config.colors[1], 15);
     } else
     if (now < (startTime + (config.dur*60000))) {
-        setColor(config.colors[2]);
+        gotoColor(config.colors[2], 15);
     } else {
         stop();
     }
@@ -228,4 +228,44 @@ uint32_t Wheel(byte WheelPos) {
   return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
 }
 
+/** Go to designated color
+ *
+ * Fade from current color. Each component (R,G,B) are (inc|dec)remented
+ * by one step up to the given color.
+ *
+ * @param color to go
+ * @param wait delay (ms) between each step
+ */
+void gotoColor (uint32_t color, uint8_t wait)
+{
+   uint32_t cColor = strip.getPixelColor(0);  /** current color */
+   uint8_t rc = cColor >> 16;               /** current red */
+   uint8_t gc = cColor >> 8 & 0xFF;         /** current green */
+   uint8_t bc = cColor & 0xFF;              /** current blue */
+   int8_t  ri=1,gi=1,bi=1;                  /** inc/dec for each component */
+
+   // compute inc or dec for each component
+   if ( (rc) > (color>>16) ) {
+      ri = -1;
+   }
+   if ( (gc) > (color>>8&0xFF) ) {
+      gi = -1;
+   }
+   if ( (bc) > (color&0xFF) ) {
+      bi = -1;
+   }
+
+   // goto
+   while (cColor != color) {
+      if (rc != (color>>16))
+         rc += ri;
+      if (gc != (color>>8&0xFF))
+         gc += gi;
+      if (bc != (color&0xFF))
+         bc += bi;
+      cColor = strip.Color (rc,gc,bc);
+      setColor (cColor);
+      delay(wait);
+   }
+} // gotoColor
 
