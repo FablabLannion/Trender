@@ -180,7 +180,9 @@ void readConfig() {
     if (c != 'L') return;
 
     for (j = 0; j < 3; j++) {
-      config.colors[j] = EEPROM.read (i++);
+      config.colors[j]  = ((uint32_t)EEPROM.read (i++)) << 16;
+      config.colors[j] |= ((uint32_t)EEPROM.read (i++)) << 8;
+      config.colors[j] |= ((uint32_t)EEPROM.read (i++));
     }
     for (j = 0; j < 2; j++) {
       config.per[j] = EEPROM.read (i++);
@@ -200,7 +202,9 @@ void writeConfig() {
   EEPROM.write(i++,config.dur);
 
     for (j = 0; j < 3; j++) {
-      EEPROM.write(i++,config.colors[j]);
+      EEPROM.write(i++,config.colors[j]>>16);
+      EEPROM.write(i++,(config.colors[j]&0x00FF00)>>8);
+      EEPROM.write(i++,(config.colors[j]&0x0000FF));
     }
     for (j = 0; j < 2; j++) {
       EEPROM.write(i++,config.per[j]);
