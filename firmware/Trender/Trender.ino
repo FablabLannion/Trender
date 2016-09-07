@@ -88,6 +88,15 @@ void setup() {
   server.begin();
   Serial.println( "HTTP server started" );
 
+    setColor(0xff0000);
+    delay(300);
+    setColor(0x00ff00);
+    delay(300);
+    setColor(0x0000ff);
+    delay(300);
+    setColor(0);
+
+
   //tk.attach(0.05, tkColor);
 }
 
