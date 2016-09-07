@@ -3,6 +3,7 @@
 #include <ESP8266WebServer.h>
 #include <Adafruit_NeoPixel.h>
 #include <Ticker.h>
+#include <EEPROM.h>
 
 #define HOSTNAME "Trender"
 #define mySSID "Trender"
@@ -66,7 +67,7 @@ void setup() {
   server.on ( "/info", []() { Serial.println("info.html"); server.send ( 200, "text/html", PAGE_Information );   }  );
 //   server.on ( "/color", processColor);
 //   server.on ( "/color/values", sendColorData);
-  server.on ( "/config", processConfig);
+  server.on ( "/config", []() { processConfig(); writeConfig();});
   server.on ( "/config/values", sendConfigData);
   server.on ( "/style.css", []() { Serial.println("style.css"); server.send ( 200, "text/plain", PAGE_Style_css );  } );
   server.on ( "/microajax.js", []() { Serial.println("microajax.js"); server.send ( 200, "text/plain", PAGE_microajax_js );  } );
@@ -81,6 +82,8 @@ void setup() {
   config.colors[2] = 0xff0000;
   config.per[0] = 50;
   config.per[1] = 90;
+  EEPROM.begin(512);
+  readConfig();
 
   server.begin();
   Serial.println( "HTTP server started" );
@@ -158,6 +161,52 @@ void stop(void) {
     setColor(0);
     tk.detach();
 }//stop
+
+/** read config from eeprom
+ */
+void readConfig() {
+    int i = 0, j = 0;
+    uint8_t c;
+
+    // check magic marker
+    c = EEPROM.read (i++);
+    Serial.println(c,HEX);
+    if (c != 'G') return;
+    c = EEPROM.read (i++);
+    Serial.println(c,HEX);
+    if (c != 'A') return;
+    c = EEPROM.read (i++);
+    Serial.println(c,HEX);
+    if (c != 'L') return;
+
+    for (j = 0; j < 3; j++) {
+      config.colors[j] = EEPROM.read (i++);
+    }
+    for (j = 0; j < 2; j++) {
+      config.per[j] = EEPROM.read (i++);
+    }
+}// readConfig
+
+/** write config to eeprom
+ */
+void writeConfig() {
+  int i = 0, j = 0;
+
+  // write magic marker
+  EEPROM.write(i++,'G');
+  EEPROM.write(i++,'A');
+  EEPROM.write(i++,'L');
+
+  EEPROM.write(i++,config.dur);
+
+    for (j = 0; j < 3; j++) {
+      EEPROM.write(i++,config.colors[j]);
+    }
+    for (j = 0; j < 2; j++) {
+      EEPROM.write(i++,config.per[j]);
+    }
+    EEPROM.commit();
+}// writeConfig
 
 // Input a value 0 to 255 to get a color value.
 // The colours are a transition r - g - b - back to r.
