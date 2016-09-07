@@ -179,6 +179,7 @@ void readConfig() {
     Serial.println(c,HEX);
     if (c != 'L') return;
 
+    config.dur = EEPROM.read (i++);
     for (j = 0; j < 3; j++) {
       config.colors[j]  = ((uint32_t)EEPROM.read (i++)) << 16;
       config.colors[j] |= ((uint32_t)EEPROM.read (i++)) << 8;
