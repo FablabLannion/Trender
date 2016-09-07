@@ -9,7 +9,7 @@
 #define mySSID "Trender"
 
 ESP8266WebServer server(80);
-Ticker tk;
+Ticker tk, tki;
 volatile boolean showRainbow = false;
 volatile uint32_t color = 0;
 
@@ -21,8 +21,11 @@ typedef struct t_config {
 volatile T_CONFIG config;
 
 /*** timer variables ***/
-unsigned long startTime = 0; /**< time of Trender timer start */
-uint8_t step = 0; /**< current timer step 0-3 */
+#define STARTED 1
+#define STOPPED 0
+unsigned long startTime = 0;
+uint8_t previousState = HIGH;
+uint8_t currentMode = STOPPED;
 
 #include "Page_Color.h"
 #include "Page_Config.h"
@@ -32,6 +35,7 @@ uint8_t step = 0; /**< current timer step 0-3 */
 #include "Page_Information.h"
 
 #define PIN D2
+#define PIN_INPUT D5
 #define NBPIX 3
 
 // Parameter 1 = number of pixels in strip
@@ -52,7 +56,7 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(NBPIX, PIN, NEO_GRB + NEO_KHZ800);
 void setup() {
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
-
+  
   Serial.begin(115200);
   Serial.println();
   WiFi.hostname (HOSTNAME);
@@ -87,6 +91,9 @@ void setup() {
 
   server.begin();
   Serial.println( "HTTP server started" );
+  
+  pinMode (PIN_INPUT, INPUT);
+  tki.attach(0.1, tkInput);
 
     setColor(0xff0000);
     delay(300);
@@ -121,6 +128,23 @@ void tkColor() {
   strip.show();
 }
 
+/** read input PIN_INPUT
+ */
+void tkInput () {
+   uint8_t r;
+   
+   r = digitalRead(PIN_INPUT);
+   //Serial.println(r);
+   if ((r == HIGH) && (previousState == LOW)) {
+      if (currentMode == STARTED) {
+         stop();
+      } else {
+         start();
+      }
+   }
+   previousState = r;
+}//tkInput
+
 /** set all pixel to color
  * @param col the color
  */
@@ -152,8 +176,9 @@ void tkTrender() {
 /** start timer
  */
 void start (void) {
-    step = 0;
+    currentMode = STARTED;
     startTime = millis();
+    Serial.print("START ");
     Serial.println(startTime);
     setColor(config.colors[0]);
     delay(500);
@@ -168,7 +193,9 @@ void start (void) {
  */
 void stop(void) {
     setColor(0);
+    currentMode = STOPPED;
     tk.detach();
+    Serial.println("STOP");
 }//stop
 
 /** read config from eeprom
