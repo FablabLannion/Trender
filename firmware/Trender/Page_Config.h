@@ -10,8 +10,8 @@ const char PAGE_Config[] = R"=====(
 <form action="" method="post">
 Duration: <input type="number" id="dur" name="dur" maxlength="3" size="3" min="1"> minutes<br/>
 
-1st: <input type="color" id="col1" name="col1"> <input type="text" id="per1" name="per1" maxlength="3" size="3"> % <br/>
-2nd: <input type="color" id="col2" name="col2"> <input type="text" id="per2" name="per2" maxlength="3" size="3"> % <br/>
+1st: <input type="color" id="col1" name="col1"> <input type="number" id="per1" name="per1" maxlength="3" size="3" max="99"> % <br/>
+2nd: <input type="color" id="col2" name="col2"> <input type="number" id="per2" name="per2" maxlength="3" size="3" max="100"> % <br/>
 3th: <input type="color" id="col3" name="col3"> <br/>
 
 <input type="submit" style="width:150px" class="btn btn--m btn--blue" value="Set">
