@@ -8,7 +8,7 @@ const char PAGE_Config[] = R"=====(
 <a href="/"  class="btn btn--s"><</a>&nbsp;&nbsp;<strong>Configuration</strong>
 <hr>
 <form action="" method="post">
-Duration: <input type="text" id="dur" name="dur" maxlength="3" size="3"> min<br/>
+Duration: <input type="number" id="dur" name="dur" maxlength="3" size="3" min="1"> minutes<br/>
 
 1st: <input type="color" id="col1" name="col1"> <input type="text" id="per1" name="per1" maxlength="3" size="3"> % <br/>
 2nd: <input type="color" id="col2" name="col2"> <input type="text" id="per2" name="per2" maxlength="3" size="3"> % <br/>
