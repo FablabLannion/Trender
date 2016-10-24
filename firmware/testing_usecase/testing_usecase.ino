@@ -9,6 +9,16 @@
  *
  *  Created by Ivan Grokhotkov, 2015.
  *  This example is in public domain.
+ *
+ *  modified by Julien JACQUES - Fablab de Lannion
+ *
+ *  author: jjacques@legtux.org
+ *  date  : 19-oct-2016
+ *  desc  : connect to thingspeak.com 
+ *          retrieve the last value of channel identified by ThingSpeakChannelId
+ *          communication with NeoPixel strip to modify its color value
+ *
+ *  notes : complete the "........" before compile this sketch
  */
 
 #include <ESP8266WiFi.h>
@@ -28,7 +38,7 @@ const uint32_t delay_get_samples = 15; /* time (unit:second) between two sample 
 
 //const char* host = "api.github.com";
 const char* host   = "thingspeak.com";
-const char* ThingSpeakChannelId = "172462";
+const char* ThingSpeakChannelId = "........";
 
 const int httpsPort = 443;
 

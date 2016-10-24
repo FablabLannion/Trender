@@ -1,5 +1,24 @@
 <?php
+/**
+ *  written by Julien JACQUES - Fablab de Lannion
+ *
+ *  author: jjacques@legtux.org
+ *  date  : 19-oct-2016
+ *  desc  : simulate a CI tool (such as Jenkins)
+ *          and send the test result value to a ThingSpeak.com's channel
+ *          identified by its write api_key (must be given below before run this script !)
+ *  usage : index.php?wait=30&maxi=2
+ *            wait : time (in seconds) between two sendings to thingspeak.com
+ *            maxi : total values sent before script ending
+ *  notes : 
+ */
 ob_start();
+
+/*
+ * TODO - Enter the ThingSpeak Write API Key between the "" below:
+ */
+$api_key="";
+
 
 $t_wait=30;
 //print_r($_GET);
@@ -11,7 +30,7 @@ if(! empty($_GET['maxi'])) {
 	$max_iter=$_GET['maxi'];
 }
 $thedate=date("D, d M Y H:i:s");
-//$thedate="lala";
+
 // Generage HTML page here
 //generate_full_html_page();
 echo "<h1>Hello, I'm your Test result generator !</h1>";
@@ -31,7 +50,7 @@ echo $output.str_repeat(' ', 10000) ."\n\n\n";
 flush();
 
 
-$api_key="XVBCFB8J63HS8G10";
+
 $opts = array(
     'http' => array(
         'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
