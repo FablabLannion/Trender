@@ -3,7 +3,7 @@
 # title         : get_color.sh
 # description   : This script is part of the Trender project.
 #                 http://fablab-lannion.org:8080/wiki/index.php?title=Trender
-# author        : jerome@labidurie.fr, julien.jacques@nokia.com
+# author        : jerome@labidurie.fr, jjacques@legtux.org
 # date          : 20160228
 # version       : 0.1
 # usage         : bash get_color.sh <URL> [DBG_flag]

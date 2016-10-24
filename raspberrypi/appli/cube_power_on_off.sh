@@ -3,7 +3,7 @@
 # title         : cube_power_on_off.sh
 # description   : This script is part of the Trender project.
 #                 http://fablab-lannion.org:8080/wiki/index.php?title=Trender
-# author        : jerome@labidurie.fr, julien.jacques@nokia.com
+# author        : jerome@labidurie.fr, jjacques@legtux.org
 # date          : 20160228
 # version       : 0.1
 # usage         : bash cube_power_on_off.sh
