@@ -11,7 +11,7 @@
 ESP8266WebServer server(80);
 Ticker tk, tki, tkb;
 /** base rate for heartbeat ticker */
-#define TKB_BASE_RATE 0.05
+#define TKB_BASE_RATE 0.10
 /** base rate for main ticker */
 #define TK_BASE_RATE 1
 volatile boolean showRainbow = false;
@@ -186,11 +186,11 @@ void tkHeartbeat() {
 
     if (decrement) {
         strip.setBrightness (bright);
-        bright -= 2;
+        bright -= 20;
         if (bright <= 50) decrement = 0;
     } else {
         strip.setBrightness (bright);
-        bright += 2;
+        bright += 20;
         if (bright >= 255) decrement = 1;
     }
     strip.show();
