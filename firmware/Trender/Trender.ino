@@ -50,6 +50,7 @@ uint8_t currentMode = STOPPED;
 #include "Page_Script_js.h"
 #include "Page_Style_css.h"
 #include "Page_Information.h"
+#include "favicon.h"
 
 #define PIN D2
 #define PIN_INPUT D5
@@ -94,6 +95,7 @@ void setup() {
   server.on ( "/microajax.js", []() { Serial.println("microajax.js"); server.send ( 200, "text/plain", PAGE_microajax_js );  } );
   server.on ( "/start", []() { Serial.println("start"); start(); server.send ( 200, "text/html", PAGE_AdminMainPage ); } );
   server.on ( "/stop", []() { Serial.println("stop"); stop(); server.send ( 200, "text/html", PAGE_AdminMainPage ); } );
+  server.on ( "/favicon.ico", []() { Serial.println("favicon"); server.send_P(200, "image/x-icon", favicon_ico, favicon_ico_len); } );
   server.onNotFound ( []() { Serial.println("Page Not Found"); server.send ( 404, "text/html", "Page not Found" );   }  );
 
   // config init
@@ -254,7 +256,7 @@ void tkTrender(void) {
         tkb.attach( ( TKB_BASE_RATE / (currentMode+1) ) / (quater+1) , tkHeartbeat);
     }
 	*/
-	
+
 	// quarter1: no pulse
 	// quarter2: no pulse
 	// quarter3: one pulse
@@ -266,25 +268,25 @@ void tkTrender(void) {
         Serial.print(START_TIME_MODE(currentMode));Serial.print(",");
         Serial.print(END_TIME_MODE(currentMode) );Serial.print(",");
         Serial.print(quater_length);Serial.print(",");
-        Serial.println(quater);	
+        Serial.println(quater);
 		switch (quater) {
 			case 2:
 			  tkb.attach( ( TKB_BASE_RATE / (currentMode+1) ) / (quater-1) , tkHeartbeat);
 			  break;
 			case 3:
-			  tkb.attach( ( TKB_BASE_RATE / (currentMode+1) ) / (quater) , tkHeartbeat);	
+			  tkb.attach( ( TKB_BASE_RATE / (currentMode+1) ) / (quater) , tkHeartbeat);
 			  break;
-			default: 
+			default:
 			  tkb.detach();
 			break;
-		  }		
-	
+		  }
 
 
 
 
 
-    }	
+
+    }
 
 
 } // tkTrender
