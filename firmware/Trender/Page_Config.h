@@ -75,7 +75,9 @@ void processConfig ()
       config.per[1] = server.arg("per2").toInt();
     }
     if (server.hasArg("hb")) {
-      config.hb = 1;
+        config.hb = 1;
+    } else {
+        config.hb = 0;
     }
 
   }

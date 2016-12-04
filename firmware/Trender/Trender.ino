@@ -9,24 +9,39 @@
 #define mySSID "Trender"
 
 ESP8266WebServer server(80);
-Ticker tk, tki;
+Ticker tk, tki, tkb;
+/** base rate for heartbeat ticker */
+#define TKB_BASE_RATE 0.05
+/** base rate for main ticker */
+#define TK_BASE_RATE 1
 volatile boolean showRainbow = false;
 volatile uint32_t color = 0;
 
 typedef struct t_config {
   uint8_t dur;              /**< total duration (min) */
   uint32_t colors[3];       /**< colors to display */
-  uint8_t  per[2];          /**< threasholds */
+  uint8_t  per[3];          /**< threasholds, last one is always 100 */
   uint8_t hb;               /**< heartbeat mode */
 } T_CONFIG;
 volatile T_CONFIG config;
 
 /*** timer variables ***/
-#define STARTED 1
-#define STOPPED 0
 unsigned long startTime = 0;
 uint8_t previousState = HIGH;
+/** current/previous timer mode
+ * will be 0 for 1st color, 1 then 3
+ * can also be STOPPED
+ */
+#define STARTED 0
+#define STOPPED 255
+uint8_t previousMode = STOPPED;
 uint8_t currentMode = STOPPED;
+/** ending time (in millis()) of mode x
+ */
+#define END_TIME_MODE(x) ( startTime + (config.dur*60000) * config.per[x] / 100 )
+/** begining time (in millis()) of mode x
+ */
+#define START_TIME_MODE(x) ( (x==0)? startTime : END_TIME_MODE(x-1) )
 
 #include "Page_Color.h"
 #include "Page_Config.h"
@@ -57,7 +72,7 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(NBPIX, PIN, NEO_GRB + NEO_KHZ800);
 void setup() {
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
-  
+
   Serial.begin(115200);
   Serial.println();
   WiFi.hostname (HOSTNAME);
@@ -87,13 +102,14 @@ void setup() {
   config.colors[2] = 0xff0000;
   config.per[0] = 50;
   config.per[1] = 90;
+  config.per[2] = 100;
   config.hb = 0;
   EEPROM.begin(512);
   readConfig();
 
   server.begin();
   Serial.println( "HTTP server started" );
-  
+
   pinMode (PIN_INPUT, INPUT);
   tki.attach(0.1, tkInput);
 
@@ -134,11 +150,11 @@ void tkColor() {
  */
 void tkInput () {
    uint8_t r;
-   
+
    r = digitalRead(PIN_INPUT);
    //Serial.println(r);
    if ((r == HIGH) && (previousState == LOW)) {
-      if (currentMode == STARTED) {
+      if (currentMode != STOPPED) {
          stop();
       } else {
          start();
@@ -153,50 +169,109 @@ void tkInput () {
 void setColor (uint32_t col) {
     uint8_t i=0;
 
+//     Serial.println(strip.getPixelColor(0),HEX);
+//     Serial.println(col,HEX);
+
     for (i = 0; i < strip.numPixels(); i++) {
       strip.setPixelColor(i, col);
     }
     strip.show();
 }
 
+/** ticker callback for heartbeat
+ */
+void tkHeartbeat() {
+    static uint16_t bright = 255;
+    static uint8_t decrement = 1;
+
+    if (decrement) {
+        strip.setBrightness (bright);
+        bright -= 2;
+        if (bright <= 50) decrement = 0;
+    } else {
+        strip.setBrightness (bright);
+        bright += 2;
+        if (bright >= 255) decrement = 1;
+    }
+    strip.show();
+}
+
+/** ticker callback for trender main timer
+ */
 void tkTrender() {
     unsigned long now = millis();
+    unsigned long quater_length = 0;
+    uint8_t quater = 0;
 
+    // compute the mode
     if (now < (startTime + (config.dur*60000)*config.per[0]/100)) {
-        gotoColor(config.colors[0], 15);
+        previousMode = currentMode;
+        currentMode = 0;
     } else
     if (now < (startTime + (config.dur*60000)*config.per[1]/100 )) {
-        gotoColor(config.colors[1], 15);
+        previousMode = currentMode;
+        currentMode = 1;
     } else
     if (now < (startTime + (config.dur*60000))) {
-        gotoColor(config.colors[2], 15);
+        previousMode = currentMode;
+        currentMode = 2;
     } else {
         stop();
+        return; // exit now, next computation (hb) will divide by 0 (quater_length will be == 0)
     }
+    if (previousMode != currentMode) {
+        setColor (config.colors[currentMode]);
+        previousMode = currentMode;
+    }
+    /* if heartbeat is activated, compute in which quater we are
+     * set heartbeat ticker acordingly
+     */
+    if (config.hb) {
+        quater_length = ( END_TIME_MODE(currentMode) - START_TIME_MODE(currentMode) ) / 4;
+        quater = (now - START_TIME_MODE(currentMode) ) / quater_length;
+
+        Serial.print(currentMode);Serial.print(",");
+        Serial.print(START_TIME_MODE(currentMode));Serial.print(",");
+        Serial.print(END_TIME_MODE(currentMode) );Serial.print(",");
+        Serial.print(quater_length);Serial.print(",");
+        Serial.println(quater);
+        tkb.attach( ( TKB_BASE_RATE / (currentMode+1) ) / (quater+1) , tkHeartbeat);
+    }
+
+
 } // tkTrender
 
 /** start timer
  */
 void start (void) {
-    currentMode = STARTED;
-    startTime = millis();
-    Serial.print("START ");
-    Serial.println(startTime);
+    // flash to show the 3 colors
     setColor(config.colors[0]);
     delay(500);
     setColor(config.colors[1]);
     delay(500);
     setColor(config.colors[2]);
     delay(500);
-    tk.attach(1, tkTrender);
+    setColor(0);
+    // init timer
+    startTime = millis();
+    Serial.print("START ");
+    Serial.println(startTime);
+    previousMode = currentMode = STOPPED;
+    tk.attach(TK_BASE_RATE, tkTrender);
+    if (config.hb) {
+        tkb.attach(TKB_BASE_RATE, tkHeartbeat);
+    }
 } // start
 
 /** stop timer
  */
 void stop(void) {
     setColor(0);
-    currentMode = STOPPED;
+    currentMode = previousMode = STOPPED;
     tk.detach();
+    if (config.hb) {
+        tkb.detach();
+    }
     Serial.println("STOP");
 }//stop
 
@@ -283,6 +358,9 @@ void gotoColor (uint32_t color, uint8_t wait)
    uint8_t gc = cColor >> 8 & 0xFF;         /** current green */
    uint8_t bc = cColor & 0xFF;              /** current blue */
    int8_t  ri=1,gi=1,bi=1;                  /** inc/dec for each component */
+
+   if (color == cColor)
+       return;
 
    // compute inc or dec for each component
    if ( (rc) > (color>>16) ) {
