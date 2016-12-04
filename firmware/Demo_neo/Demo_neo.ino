@@ -70,10 +70,9 @@ void loop() {
 
 void tkColor() {
   uint16_t i;
-  static uint16_t j;
+  static uint16_t j=0;
 
   if (!showRainbow) {
-    j = 0;
     for (i = 0; i < strip.numPixels(); i++) {
       strip.setPixelColor(i, color);
     }

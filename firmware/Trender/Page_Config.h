@@ -13,6 +13,7 @@ Duration: <input type="number" id="dur" name="dur" maxlength="3" size="3" min="1
 1st: <input type="color" id="col1" name="col1"> <input type="number" id="per1" name="per1" maxlength="3" size="3" max="99"> % <br/>
 2nd: <input type="color" id="col2" name="col2"> <input type="number" id="per2" name="per2" maxlength="3" size="3" max="100"> % <br/>
 3th: <input type="color" id="col3" name="col3"> <br/>
+<input type="checkbox" id="hb" name="hb"> Heartbeat <br/>
 
 <input type="submit" style="width:150px" class="btn btn--m btn--blue" value="Set">
 </form>
@@ -47,6 +48,7 @@ void sendConfigData () {
   values += "col3|#" + String(str) + "|input\n";
   values += "per1|" +  (String) (config.per[0]) + "|input\n";
   values += "per2|" +  (String) (config.per[1]) + "|input\n";
+  values += "hb|" +  (String) (config.hb ? "checked" : "") + "|chk\n";
   server.send ( 200, "text/plain", values);
   Serial.println(__FUNCTION__);
 }
@@ -71,6 +73,9 @@ void processConfig ()
     }
     if (server.hasArg("per2")) {
       config.per[1] = server.arg("per2").toInt();
+    }
+    if (server.hasArg("hb")) {
+      config.hb = 1;
     }
 
   }

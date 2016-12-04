@@ -17,6 +17,7 @@ typedef struct t_config {
   uint8_t dur;              /**< total duration (min) */
   uint32_t colors[3];       /**< colors to display */
   uint8_t  per[2];          /**< threasholds */
+  uint8_t hb;               /**< heartbeat mode */
 } T_CONFIG;
 volatile T_CONFIG config;
 
@@ -86,6 +87,7 @@ void setup() {
   config.colors[2] = 0xff0000;
   config.per[0] = 50;
   config.per[1] = 90;
+  config.hb = 0;
   EEPROM.begin(512);
   readConfig();
 
@@ -224,6 +226,7 @@ void readConfig() {
     for (j = 0; j < 2; j++) {
       config.per[j] = EEPROM.read (i++);
     }
+    config.hb = EEPROM.read (i++);
 }// readConfig
 
 /** write config to eeprom
@@ -246,6 +249,7 @@ void writeConfig() {
     for (j = 0; j < 2; j++) {
       EEPROM.write(i++,config.per[j]);
     }
+    EEPROM.write(i++, config.hb);
     EEPROM.commit();
 }// writeConfig
 
