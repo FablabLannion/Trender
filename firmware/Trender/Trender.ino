@@ -175,6 +175,7 @@ void setColor (uint32_t col) {
     for (i = 0; i < strip.numPixels(); i++) {
       strip.setPixelColor(i, col);
     }
+	strip.setBrightness (255);
     strip.show();
 }
 
@@ -202,6 +203,7 @@ void tkTrender() {
     unsigned long now = millis();
     unsigned long quater_length = 0;
     uint8_t quater = 0;
+	uint8_t nb_pulses = 0;
 
     // compute the mode
     if (now < (startTime + (config.dur*60000)*config.per[0]/100)) {
@@ -220,12 +222,18 @@ void tkTrender() {
         return; // exit now, next computation (hb) will divide by 0 (quater_length will be == 0)
     }
     if (previousMode != currentMode) {
+
         setColor (config.colors[currentMode]);
         previousMode = currentMode;
     }
     /* if heartbeat is activated, compute in which quater we are
      * set heartbeat ticker acordingly
      */
+	/*
+	// quarter1: one pulse
+	// quarter2: two pulse
+	// quarter3: three pulse
+	// quarter4: four pulse
     if (config.hb) {
         quater_length = ( END_TIME_MODE(currentMode) - START_TIME_MODE(currentMode) ) / 4;
         quater = (now - START_TIME_MODE(currentMode) ) / quater_length;
@@ -237,6 +245,38 @@ void tkTrender() {
         Serial.println(quater);
         tkb.attach( ( TKB_BASE_RATE / (currentMode+1) ) / (quater+1) , tkHeartbeat);
     }
+	*/
+	
+	// quarter1: no pulse
+	// quarter2: no pulse
+	// quarter3: one pulse
+	// quarter4: three pulse
+    if (config.hb) {
+        quater_length = ( END_TIME_MODE(currentMode) - START_TIME_MODE(currentMode) ) / 4;
+        quater = (now - START_TIME_MODE(currentMode) ) / quater_length;
+        Serial.print(currentMode);Serial.print(",");
+        Serial.print(START_TIME_MODE(currentMode));Serial.print(",");
+        Serial.print(END_TIME_MODE(currentMode) );Serial.print(",");
+        Serial.print(quater_length);Serial.print(",");
+        Serial.println(quater);	
+		switch (quater) {
+			case 2:
+			  tkb.attach( ( TKB_BASE_RATE / (currentMode+1) ) / (quater-1) , tkHeartbeat);
+			  break;
+			case 3:
+			  tkb.attach( ( TKB_BASE_RATE / (currentMode+1) ) / (quater) , tkHeartbeat);	
+			  break;
+			default: 
+			  tkb.detach();
+			break;
+		  }		
+	
+
+
+
+
+
+    }	
 
 
 } // tkTrender
@@ -259,7 +299,7 @@ void start (void) {
     previousMode = currentMode = STOPPED;
     tk.attach(TK_BASE_RATE, tkTrender);
     if (config.hb) {
-        tkb.attach(TKB_BASE_RATE, tkHeartbeat);
+        //tkb.attach(TKB_BASE_RATE, tkHeartbeat);
     }
 } // start
 
