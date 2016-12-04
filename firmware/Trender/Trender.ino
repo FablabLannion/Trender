@@ -1,9 +1,11 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
+#include <ESP8266mDNS.h>
 #include <Adafruit_NeoPixel.h>
 #include <Ticker.h>
 #include <EEPROM.h>
+
 
 #define HOSTNAME "Trender"
 #define mySSID "Trender"
@@ -50,6 +52,7 @@ uint8_t currentMode = STOPPED;
 #include "Page_Script_js.h"
 #include "Page_Style_css.h"
 #include "Page_Information.h"
+#include "favicon.h"
 
 #define PIN D2
 #define PIN_INPUT D5
@@ -94,7 +97,8 @@ void setup() {
   server.on ( "/microajax.js", []() { Serial.println("microajax.js"); server.send ( 200, "text/plain", PAGE_microajax_js );  } );
   server.on ( "/start", []() { Serial.println("start"); start(); server.send ( 200, "text/html", PAGE_AdminMainPage ); } );
   server.on ( "/stop", []() { Serial.println("stop"); stop(); server.send ( 200, "text/html", PAGE_AdminMainPage ); } );
-  server.onNotFound ( []() { Serial.println("Page Not Found"); server.send ( 404, "text/html", "Page not Found" );   }  );
+  server.on ( "/favicon.ico", []() { Serial.println("favicon"); server.send_P(200, "image/x-icon", favicon_ico, favicon_ico_len); } );
+  server.onNotFound ( []() { Serial.println("Page Not Found " + server.uri()); server.send ( 404, "text/html", "Page not Found" );   }  );
 
   // config init
   config.dur = 1;
@@ -107,6 +111,19 @@ void setup() {
   config.hb = 0;
   EEPROM.begin(512);
   readConfig();
+
+  // Set up mDNS responder:
+  // - first argument is the domain name, in this example
+  //   the fully-qualified domain name is "esp8266.local"
+  // - second argument is the IP address to advertise
+  //   we send our IP address on the WiFi network
+  if (!MDNS.begin("trender")) {
+    Serial.println("Error setting up MDNS responder!");
+    while(1) {
+      delay(1000);
+    }
+  }
+  Serial.println("mDNS responder started");
 
   server.begin();
   Serial.println( "HTTP server started" );
@@ -211,15 +228,15 @@ void tkTrender(void) {
     uint8_t quater = 0;
 
     // compute the mode
-    if (now < (startTime + (config.dur*60000)*config.per[0]/100)) {
+    if (now < END_TIME_MODE(0) ) {
         previousMode = currentMode;
         currentMode = 0;
     } else
-    if (now < (startTime + (config.dur*60000)*config.per[1]/100 )) {
+    if (now < END_TIME_MODE(1)) {
         previousMode = currentMode;
         currentMode = 1;
     } else
-    if (now < (startTime + (config.dur*60000))) {
+    if (now < END_TIME_MODE(2)) {
         previousMode = currentMode;
         currentMode = 2;
     } else {
