@@ -26,10 +26,10 @@ typedef struct t_config {
 volatile T_CONFIG config;
 
 /*** timer variables ***/
-unsigned long startTime = 0;
+unsigned long startTime = 0; /**< begining time of trender mode 0 */
 uint8_t previousState = HIGH;
 /** current/previous timer mode
- * will be 0 for 1st color, 1 then 3
+ * will be 0 for 1st color, 1 then 2
  * can also be STOPPED
  */
 #define STARTED 0
@@ -43,6 +43,7 @@ uint8_t currentMode = STOPPED;
  */
 #define START_TIME_MODE(x) ( (x==0)? startTime : END_TIME_MODE(x-1) )
 
+/** include web pages */
 #include "Page_Color.h"
 #include "Page_Config.h"
 #include "Page_Admin.h"
@@ -125,10 +126,16 @@ void setup() {
   //tk.attach(0.05, tkColor);
 }
 
+/** main loop
+ * handle http events
+ */
 void loop() {
   server.handleClient();
 }
 
+/** ticker callback for rainbow mode
+ * NOT USED anymode
+ */
 void tkColor() {
   uint16_t i;
   static uint16_t j=0;
@@ -164,7 +171,7 @@ void tkInput () {
 }//tkInput
 
 /** set all pixel to color
- * @param col the color
+ * @param col the color as 0xRRGGBB
  */
 void setColor (uint32_t col) {
     uint8_t i=0;
@@ -180,9 +187,9 @@ void setColor (uint32_t col) {
 
 /** ticker callback for heartbeat
  */
-void tkHeartbeat() {
-    static uint16_t bright = 255;
-    static uint8_t decrement = 1;
+void tkHeartbeat(void) {
+    static uint16_t bright = 255; ///< current brightness
+    static uint8_t decrement = 1; ///< going up or down
 
     if (decrement) {
         strip.setBrightness (bright);
@@ -198,7 +205,7 @@ void tkHeartbeat() {
 
 /** ticker callback for trender main timer
  */
-void tkTrender() {
+void tkTrender(void) {
     unsigned long now = millis();
     unsigned long quater_length = 0;
     uint8_t quater = 0;
@@ -237,11 +244,9 @@ void tkTrender() {
         Serial.println(quater);
         tkb.attach( ( TKB_BASE_RATE / (currentMode+1) ) / (quater+1) , tkHeartbeat);
     }
-
-
 } // tkTrender
 
-/** start timer
+/** start main timer
  */
 void start (void) {
     // flash to show the 3 colors
@@ -263,9 +268,9 @@ void start (void) {
     }
 } // start
 
-/** stop timer
+/** stop main timer
  */
-void stop(void) {
+void stop (void) {
     setColor(0);
     currentMode = previousMode = STOPPED;
     tk.detach();
@@ -277,7 +282,7 @@ void stop(void) {
 
 /** read config from eeprom
  */
-void readConfig() {
+void readConfig (void) {
     int i = 0, j = 0;
     uint8_t c;
 
@@ -306,7 +311,7 @@ void readConfig() {
 
 /** write config to eeprom
  */
-void writeConfig() {
+void writeConfig (void) {
   int i = 0, j = 0;
 
   // write magic marker
@@ -328,9 +333,11 @@ void writeConfig() {
     EEPROM.commit();
 }// writeConfig
 
-// Input a value 0 to 255 to get a color value.
-// The colours are a transition r - g - b - back to r.
-uint32_t Wheel(byte WheelPos) {
+/** Input a value 0 to 255 to get a color value.
+ * The colours are a transition r - g - b - back to r.
+ * @param WheelPos current whell position 0-255
+ */
+uint32_t Wheel (byte WheelPos) {
   WheelPos = 255 - WheelPos;
   if (WheelPos < 85) {
     return strip.Color(255 - WheelPos * 3, 0, WheelPos * 3);
