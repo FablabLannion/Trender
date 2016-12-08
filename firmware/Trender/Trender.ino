@@ -7,6 +7,7 @@
 
 #define HOSTNAME "Trender"
 #define mySSID "Trender"
+#define VERSION "Trender v1.0"
 
 ESP8266WebServer server(80);
 Ticker tk, tki, tkb;
@@ -76,7 +77,7 @@ void setup() {
   strip.show(); // Initialize all pixels to 'off'
 
   Serial.begin(115200);
-  Serial.println();
+  Serial.println(VERSION);
   WiFi.hostname (HOSTNAME);
   Serial.println("Configuring access point...");
   WiFi.mode(WIFI_AP);
