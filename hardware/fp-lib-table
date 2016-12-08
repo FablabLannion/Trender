@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name D1_mini)(type KiCad)(uri "$(KIPRJMOD)/lib/D1_mini.pretty")(options "")(descr ""))
+  (lib (name WS2812B)(type Legacy)(uri "$(KIPRJMOD)/lib/WS2812B.mod")(options "")(descr ""))
+)

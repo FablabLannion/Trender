@@ -1,0 +1,412 @@
+EESchema Schematic File Version 2
+LIBS:power
+LIBS:device
+LIBS:transistors
+LIBS:conn
+LIBS:linear
+LIBS:regul
+LIBS:74xx
+LIBS:cmos4000
+LIBS:adc-dac
+LIBS:memory
+LIBS:xilinx
+LIBS:microcontrollers
+LIBS:dsp
+LIBS:microchip
+LIBS:analog_switches
+LIBS:motorola
+LIBS:texas
+LIBS:intel
+LIBS:audio
+LIBS:interface
+LIBS:digital-audio
+LIBS:philips
+LIBS:display
+LIBS:cypress
+LIBS:siliconi
+LIBS:opto
+LIBS:atmel
+LIBS:contrib
+LIBS:valves
+LIBS:WS2812B
+LIBS:hardware-cache
+EELAYER 25 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title "SweetTime"
+Date "2016-06-27"
+Rev "2.0"
+Comp "Galilabs"
+Comment1 "Fablab Lannion"
+Comment2 "http://u.dinask.eu/trender"
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L CONN_01X08 P1
+U 1 1 5763EB78
+P 9650 1400
+F 0 "P1" H 9650 1850 50  0000 C CNN
+F 1 "CONN_01X08" V 9750 1400 50  0000 C CNN
+F 2 "D1_mini:D1_mini_Pin_Header" H 9650 1400 50  0001 C CNN
+F 3 "" H 9650 1400 50  0000 C CNN
+	1    9650 1400
+	1    0    0    -1  
+$EndComp
+$Comp
+L CONN_01X08 P2
+U 1 1 5763EBF2
+P 10100 1400
+F 0 "P2" H 10100 1850 50  0000 C CNN
+F 1 "CONN_01X08" V 10200 1400 50  0000 C CNN
+F 2 "D1_mini:D1_mini_Pin_Header" H 10100 1400 50  0001 C CNN
+F 3 "" H 10100 1400 50  0000 C CNN
+	1    10100 1400
+	-1   0    0    -1  
+$EndComp
+Text Label 9450 1050 2    60   ~ 0
++5V
+Text Label 9450 1150 2    60   ~ 0
+GND
+Text Label 9450 1250 2    60   ~ 0
+D4
+Text Label 9450 1350 2    60   ~ 0
+D3
+Text Label 9450 1450 2    60   ~ 0
+D2
+Text Label 9450 1550 2    60   ~ 0
+D1
+Text Label 9450 1650 2    60   ~ 0
+RX
+Text Label 9450 1750 2    60   ~ 0
+TX
+Text Label 10300 1050 0    60   ~ 0
++3.3V
+Text Label 10300 1150 0    60   ~ 0
+D8
+Text Label 10300 1250 0    60   ~ 0
+D7
+Text Label 10300 1350 0    60   ~ 0
+D6
+Text Label 10300 1450 0    60   ~ 0
+D5
+Text Label 10300 1550 0    60   ~ 0
+D0
+Text Label 10300 1650 0    60   ~ 0
+A0
+Text Label 10300 1750 0    60   ~ 0
+RST
+Text Notes 9200 1250 2    60   ~ 0
+GPIO2
+Text Notes 9200 1350 2    60   ~ 0
+GPIO0
+Text Notes 9200 1450 2    60   ~ 0
+GPIO4
+Text Notes 9200 1550 2    60   ~ 0
+GPIO5
+Text Notes 10650 1150 0    60   ~ 0
+GPIO15
+Text Notes 10650 1250 0    60   ~ 0
+GPIO13
+Text Notes 10650 1350 0    60   ~ 0
+GPIO12
+Text Notes 10650 1450 0    60   ~ 0
+GPIO14
+Text Notes 10650 1550 0    60   ~ 0
+GPIO16
+Wire Notes Line
+	8500 500  8500 2100
+Wire Notes Line
+	8500 2100 11200 2100
+Text Notes 8550 600  0    60   ~ 0
+D1 Mini Shield
+$Comp
+L WS2812B D1
+U 1 1 577173C5
+P 1750 1800
+F 0 "D1" H 1350 2250 50  0000 L CNN
+F 1 "WS2812B" H 1350 1300 50  0000 L CNN
+F 2 "WS2812B:LED_WS2812B" H 1750 1800 50  0001 L CNN
+F 3 "" H 1750 1800 60  0000 C CNN
+	1    1750 1800
+	1    0    0    -1  
+$EndComp
+$Comp
+L WS2812B D2
+U 1 1 577174D3
+P 3300 1800
+F 0 "D2" H 2900 2250 50  0000 L CNN
+F 1 "WS2812B" H 2900 1300 50  0000 L CNN
+F 2 "WS2812B:LED_WS2812B" H 3300 1800 50  0001 L CNN
+F 3 "" H 3300 1800 60  0000 C CNN
+	1    3300 1800
+	1    0    0    -1  
+$EndComp
+$Comp
+L WS2812B D3
+U 1 1 57717547
+P 4850 1800
+F 0 "D3" H 4450 2250 50  0000 L CNN
+F 1 "WS2812B" H 4450 1300 50  0000 L CNN
+F 2 "WS2812B:LED_WS2812B" H 4850 1800 50  0001 L CNN
+F 3 "" H 4850 1800 60  0000 C CNN
+	1    4850 1800
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3900 1800 4250 1800
+Wire Wire Line
+	2350 1800 2700 1800
+$Comp
+L D D4
+U 1 1 57717974
+P 2350 950
+F 0 "D4" H 2350 1050 50  0000 C CNN
+F 1 "1N4148" H 2350 850 50  0000 C CNN
+F 2 "Diodes_SMD:MiniMELF_Standard" H 2350 950 60  0001 C CNN
+F 3 "" H 2350 950 60  0000 C CNN
+	1    2350 950 
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	2350 1500 2350 1100
+Wire Wire Line
+	2050 800  5450 800 
+Wire Wire Line
+	3900 800  3900 1500
+Wire Wire Line
+	5450 800  5450 1500
+Connection ~ 3900 800 
+Text Label 2050 800  2    60   ~ 0
++5V
+Wire Wire Line
+	2350 2100 2350 2550
+Wire Wire Line
+	2350 2550 5450 2550
+Wire Wire Line
+	3900 2550 3900 2100
+Wire Wire Line
+	5450 2550 5450 2100
+Connection ~ 3900 2550
+Text Label 2350 2550 2    60   ~ 0
+GND
+$Comp
+L R R1
+U 1 1 57717D17
+P 7300 1000
+F 0 "R1" V 7380 1000 50  0000 C CNN
+F 1 "10K" V 7300 1000 50  0000 C CNN
+F 2 "Resistors_SMD:R_0402" V 7230 1000 30  0001 C CNN
+F 3 "" H 7300 1000 30  0000 C CNN
+	1    7300 1000
+	1    0    0    -1  
+$EndComp
+$Comp
+L C C1
+U 1 1 57717D66
+P 7300 1550
+F 0 "C1" H 7325 1650 50  0000 L CNN
+F 1 "10n" H 7325 1450 50  0000 L CNN
+F 2 "Capacitors_SMD:C_0402" H 7338 1400 30  0001 C CNN
+F 3 "" H 7300 1550 60  0000 C CNN
+	1    7300 1550
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR01
+U 1 1 57717E9A
+P 10500 6100
+F 0 "#PWR01" H 10500 5850 50  0001 C CNN
+F 1 "GND" H 10500 5950 50  0000 C CNN
+F 2 "" H 10500 6100 60  0000 C CNN
+F 3 "" H 10500 6100 60  0000 C CNN
+	1    10500 6100
+	1    0    0    -1  
+$EndComp
+$Comp
+L PWR_FLAG #FLG02
+U 1 1 57717ED2
+P 10500 6000
+F 0 "#FLG02" H 10500 6095 50  0001 C CNN
+F 1 "PWR_FLAG" H 10500 6180 50  0000 C CNN
+F 2 "" H 10500 6000 60  0000 C CNN
+F 3 "" H 10500 6000 60  0000 C CNN
+	1    10500 6000
+	1    0    0    -1  
+$EndComp
+Text Label 10500 6050 2    60   ~ 0
+GND
+Wire Wire Line
+	10500 6000 10500 6100
+$Comp
+L PWR_FLAG #FLG03
+U 1 1 57718046
+P 10900 6000
+F 0 "#FLG03" H 10900 6095 50  0001 C CNN
+F 1 "PWR_FLAG" H 10900 6180 50  0000 C CNN
+F 2 "" H 10900 6000 60  0000 C CNN
+F 3 "" H 10900 6000 60  0000 C CNN
+	1    10900 6000
+	1    0    0    -1  
+$EndComp
+$Comp
+L PWR_FLAG #FLG04
+U 1 1 5771806C
+P 10100 6000
+F 0 "#FLG04" H 10100 6095 50  0001 C CNN
+F 1 "PWR_FLAG" H 10100 6180 50  0000 C CNN
+F 2 "" H 10100 6000 60  0000 C CNN
+F 3 "" H 10100 6000 60  0000 C CNN
+	1    10100 6000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	10100 6000 10100 6100
+Wire Wire Line
+	10900 6000 10900 6100
+Text Label 10100 6100 2    60   ~ 0
++5V
+Text Label 10900 6100 2    60   ~ 0
++3.3V
+Wire Notes Line
+	9700 6500 9700 5500
+Wire Notes Line
+	9700 5500 11200 5500
+Wire Notes Line
+	500  3350 6450 3350
+Wire Notes Line
+	6450 3350 6450 500 
+Wire Wire Line
+	7300 1150 7300 1400
+Wire Wire Line
+	6950 1300 7700 1300
+Connection ~ 7300 1300
+Wire Wire Line
+	7300 1700 7300 2100
+Wire Wire Line
+	7300 1900 6950 1900
+Connection ~ 7300 1900
+$Comp
+L GND #PWR05
+U 1 1 5771843C
+P 7300 2100
+F 0 "#PWR05" H 7300 1850 50  0001 C CNN
+F 1 "GND" H 7300 1950 50  0000 C CNN
+F 2 "" H 7300 2100 60  0000 C CNN
+F 3 "" H 7300 2100 60  0000 C CNN
+	1    7300 2100
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR06
+U 1 1 5771848D
+P 3900 2550
+F 0 "#PWR06" H 3900 2300 50  0001 C CNN
+F 1 "GND" H 3900 2400 50  0000 C CNN
+F 2 "" H 3900 2550 60  0000 C CNN
+F 3 "" H 3900 2550 60  0000 C CNN
+	1    3900 2550
+	1    0    0    -1  
+$EndComp
+Wire Notes Line
+	6500 2650 8050 2650
+Wire Notes Line
+	8050 2650 8050 450 
+Text Notes 550  3250 0    60   ~ 0
+RGB leds
+Text Notes 6500 2600 0    60   ~ 0
+Control button connector
+$Comp
+L CONN_01X02 P3
+U 1 1 577189A7
+P 6750 1600
+F 0 "P3" H 6750 1750 50  0000 C CNN
+F 1 "CONN_01X02" V 6850 1600 50  0000 C CNN
+F 2 "Connect:PINHEAD1-2" H 6750 1600 60  0001 C CNN
+F 3 "" H 6750 1600 60  0000 C CNN
+	1    6750 1600
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	6950 1300 6950 1550
+Wire Wire Line
+	6950 1900 6950 1650
+Text Label 850  1800 2    60   ~ 0
+D2
+Text Label 7700 1300 0    60   ~ 0
+D5
+NoConn ~ 9450 1250
+NoConn ~ 9450 1350
+NoConn ~ 9450 1550
+NoConn ~ 9450 1650
+NoConn ~ 9450 1750
+NoConn ~ 10300 1150
+NoConn ~ 10300 1250
+NoConn ~ 10300 1550
+NoConn ~ 10300 1650
+NoConn ~ 10300 1750
+$Comp
+L R R2
+U 1 1 5772A62F
+P 1000 1800
+F 0 "R2" V 1080 1800 50  0000 C CNN
+F 1 "470" V 1000 1800 50  0000 C CNN
+F 2 "Resistors_SMD:R_0402" V 930 1800 30  0001 C CNN
+F 3 "" H 1000 1800 30  0000 C CNN
+	1    1000 1800
+	0    1    1    0   
+$EndComp
+$Comp
+L C C2
+U 1 1 5772A7DC
+P 2050 950
+F 0 "C2" H 2075 1050 50  0000 L CNN
+F 1 "4.7u" H 2075 850 50  0000 L CNN
+F 2 "Capacitors_SMD:C_0402" H 2088 800 30  0001 C CNN
+F 3 "" H 2050 950 60  0000 C CNN
+	1    2050 950 
+	1    0    0    -1  
+$EndComp
+Connection ~ 2350 800 
+$Comp
+L GND #PWR07
+U 1 1 5772A872
+P 2050 1100
+F 0 "#PWR07" H 2050 850 50  0001 C CNN
+F 1 "GND" H 2050 950 50  0000 C CNN
+F 2 "" H 2050 1100 60  0000 C CNN
+F 3 "" H 2050 1100 60  0000 C CNN
+	1    2050 1100
+	1    0    0    -1  
+$EndComp
+Text Label 7300 850  0    60   ~ 0
++3.3V
+NoConn ~ 10300 1350
+$Comp
+L CONN_01X03 P4
+U 1 1 5772F386
+P 6050 1800
+F 0 "P4" H 6050 2000 50  0000 C CNN
+F 1 "CONN_01X03" V 6150 1800 50  0000 C CNN
+F 2 "Connect:PINHEAD1-3" H 6050 1800 60  0001 C CNN
+F 3 "" H 6050 1800 60  0000 C CNN
+	1    6050 1800
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5450 1500 5650 1500
+Wire Wire Line
+	5650 1500 5650 1700
+Wire Wire Line
+	5650 1700 5850 1700
+Wire Wire Line
+	5450 1800 5850 1800
+Wire Wire Line
+	5450 2100 5650 2100
+Wire Wire Line
+	5650 2100 5650 1900
+Wire Wire Line
+	5650 1900 5850 1900
+$EndSCHEMATC
