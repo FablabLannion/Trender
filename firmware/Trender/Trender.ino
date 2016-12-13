@@ -27,8 +27,9 @@
 #include <EEPROM.h>
 
 #define HOSTNAME "Trender"
-#define mySSID "Trender"
+#define baseSSID "Trender-"
 #define VERSION "Trender v1.0"
+char mySSID[13];
 
 ESP8266WebServer server(80);
 Ticker tk, tki, tkb;
@@ -94,6 +95,11 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(NBPIX, PIN, NEO_GRB + NEO_KHZ800);
 // on a live circuit...if you must, connect GND first.
 
 void setup() {
+  uint8_t mac[6];
+  
+  WiFi.macAddress(mac);
+  snprintf (mySSID, 13, "%s%02X%02X", baseSSID, mac[4], mac[5]);
+  
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
 
