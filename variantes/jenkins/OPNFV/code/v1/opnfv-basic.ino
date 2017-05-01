@@ -8,26 +8,34 @@
  *  build.
  *
  *  Created by Ivan Grokhotkov, 2015.
+ *  Modification done by Morgan Richomme 2017 for OPNFV trender
+ *  Trender has been created by Fablab Lannion
+ *  
  *  This example is in public domain.
- *
- *  Adaptation pour jobs OPNFV by Morgan RIchomme, 2017
  */
-
+#include <Adafruit_NeoPixel.h>
+ 
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
 #include <Time.h>
 
-const char* ssid = "Le_SSID_de_votre_point_d'accès";
-const char* password = "Le_mot_de_passe_WIFI";
+#define PIN D2
+// How many NeoPixels are attached to the Arduino?
+#define NUMPIXELS 7
+
+const char* ssid = "Your SSID HERE";
+const char* password = "YOUR WIFI PASSWORD HERE";
 
 const char* host = "build.opnfv.org";
 const int httpsPort = 443;
 
-const int DELAY_BETWEEN_REQ = 300000; // Temps entre 2 requêtes
+const int DELAY_BETWEEN_REQ = 300000;
 
 // Use web browser to view and copy
 // SHA1 fingerprint of the certificate
 const char* fingerprint = "25 69 92 77 49 BD F8 E9 92 E1 32 70 5B 19 E0 9B 55 18 11 BB";
+
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
 // ***********************************************************
 // ***********************************************************
@@ -51,13 +59,7 @@ void setup() {
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
-
-  /* Serial.println("reply was:");
-  Serial.println("==========");
-  Serial.println(line);
-  Serial.println("==========");
-  Serial.println("closing connection");
-  */
+   pixels.begin();
 }
 
 // ***********************************************************
@@ -82,8 +84,9 @@ void loop() {
   }
   digitalClockDisplay();
   int res = getJobStatus(client);
+  // time between 2 requests depends on led sequence
   ledManagement(res);
-  delay(DELAY_BETWEEN_REQ);
+  // delay(DELAY_BETWEEN_REQ);
 }
 
 // ***********************************************************
@@ -95,19 +98,18 @@ void loop() {
 
 /*
  * This function is used to translate Jenkisn into an error code
- * TODO: changer l'url en fonction du job que vous souhaitez visualiser
- *
+ * 
  * Status:
  * -2: UNKNOWN
  * -1: FAILURE
  * 0: SUCCESS
  * 1: PENDING
- *
+ * 
  */
 int getJobStatus(WiFiClientSecure client){
   int result = -2;
-  String url = "/ci/view/functest/job/functest-compass-baremetal-daily-master/lastBuild/api/json";
-  //String url = "/ci/view/functest/job/fuel-deploy-armband-baremetal-daily-master/lastBuild/api/json";
+  // TODO modify the URL to retrieve the JOB status you are interested in
+  String url = "/ci/view/functest/job/functest-apex-apex-daily-danube-daily-danube/lastBuild/api/json";
   Serial.print("requesting URL: ");
   Serial.println(url);
 
@@ -125,7 +127,7 @@ int getJobStatus(WiFiClientSecure client){
     }
   }
   String line = client.readStringUntil('\n');
-
+  
   if (line.indexOf("SUCCESS") > 0) {
     Serial.println("Functest Compass last CI status: successfull!");
     result = 0;
@@ -137,35 +139,58 @@ int getJobStatus(WiFiClientSecure client){
       Serial.println("Functest last CI status: unknown state...");
     } else {
       Serial.println("Functest last CI status: build in progress....");
-      result = 1;
+      result = 1;      
     }
   }
-
+  
   return result;
 }
 
 /*
  * ledManagement
- *
+ * 
  * According to return code
  * Set led sequences
- *
+ * 
  */
 void ledManagement(int res){
   switch (res) {
     case -1:
       Serial.println("Run red led sequence");
+      Serial.println("Rosace rouge");
+      clignotement(255,64,64,100);
+      rosace(255,64,64,1000,20);
+      k2000(255,64,64,100,20);
+      clignotement(255,64,64,100);
       break;
     case 0:
       Serial.println("Run green led sequence");
+       Serial.println("Clignotement vert");
+        clignotement(0,100,0,100);
+        delay(3000);
+        rosace(0,100,0,1000,20);
+        k2000(0,100,0,100,20);
+        clignotement(0,100,0,100);
       break;
     case 1:
       Serial.println("Run yellow led sequence");
+      Serial.println("Clignotement jaune");
+      clignotement(255,255,0,100);
+      k2000(255,255,0,100,20);
+      rosace(255,255,0,1000,20);
+      clignotement(255,255,0,100);
       break;
-    default:
+    default: 
       Serial.println("Run random sequence");
+       Serial.println("Clignotement bleu");
+       clignotement(0,255,255,100);
+        rosace(0,100,0,1000,20);
+        k2000(0,100,0,100,20);
+       clignotement(0,255,255,100);
     break;
   }
+   extinction();
+   delay(10000);
 }
 
 /*
@@ -194,4 +219,64 @@ void printDigits(int digits) {
  if (digits < 10)
  Serial.print('0');
  Serial.print(digits);
+}
+
+void rosace(int couleur_R, int couleur_G, int couleur_B,int vitesse,int nb_tour){
+  for(int k=0;k<nb_tour;k++){
+    for(int j=0;j<NUMPIXELS;j++)
+    {
+      pixels.setPixelColor(j, pixels.Color(couleur_R, couleur_G, couleur_B));
+      pixels.show();
+      delay(vitesse);
+    }
+    extinction();
+  }
+}
+
+void extinction(){
+ for(int j=0;j<NUMPIXELS;j++)
+  {
+    pixels.setPixelColor(j, pixels.Color(0, 0, 0));
+  }
+  pixels.show();
+}
+
+void allume_tout(int couleur_R, int couleur_G, int couleur_B){
+  for(int j=0;j<NUMPIXELS;j++)
+  {
+    pixels.setPixelColor(j, pixels.Color(couleur_R, couleur_G, couleur_B));
+    pixels.show();
+  }
+
+}
+void k2000(int couleur_R, int couleur_G, int couleur_B,int vitesse, int nb_aller_retour){
+  for(int k=0;k<nb_aller_retour;k++){
+      pixels.setPixelColor(0, pixels.Color(0, 0, 0));
+      pixels.setPixelColor(1, pixels.Color(couleur_R, couleur_G, couleur_B));
+      pixels.show();
+      delay(vitesse);
+     for(int j=2;j<NUMPIXELS;j++){
+       pixels.setPixelColor(j-1, pixels.Color(0, 0, 0));
+       pixels.setPixelColor(j, pixels.Color(couleur_R, couleur_G, couleur_B));
+       pixels.show();  
+       delay(vitesse);
+     }
+      pixels.setPixelColor(0, pixels.Color(couleur_R, couleur_G, couleur_B));
+     for(int j=2;j<NUMPIXELS;j++){
+       pixels.setPixelColor(9-j, pixels.Color(0, 0, 0));
+       pixels.setPixelColor(8-j, pixels.Color(couleur_R, couleur_G, couleur_B));
+       pixels.show();  
+       delay(vitesse);
+     }
+  }
+}
+
+void clignotement(int couleur_R, int couleur_G, int couleur_B,int nb_clignotement){
+  for(int j=0;j<nb_clignotement;j++)
+  {
+    allume_tout(couleur_R, couleur_G, couleur_B);
+    delay(500);
+    extinction();
+    delay(500);
+  }
 }
