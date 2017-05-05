@@ -25,6 +25,7 @@
 #include <Adafruit_NeoPixel.h>
 #include <Ticker.h>
 #include <EEPROM.h>
+#include <DNSServer.h>
 
 #define HOSTNAME "Trender"
 #define baseSSID "Trender-"
@@ -39,6 +40,9 @@ Ticker tk, tki, tkb;
 #define TK_BASE_RATE 1
 volatile boolean showRainbow = false;
 volatile uint32_t color = 0;
+
+DNSServer dnsServer;
+#define DNS_PORT 53 /**< DNS port */
 
 typedef struct t_config {
   uint8_t dur;              /**< total duration (min) */
@@ -138,6 +142,10 @@ void setup() {
   EEPROM.begin(512);
   readConfig();
 
+  // if DNSServer is started with "*" for domain name, it will reply with
+  // provided IP to all DNS request
+  dnsServer.start ( DNS_PORT, "*", WiFi.softAPIP() );
+  // webserver
   server.begin();
   Serial.println( "HTTP server started" );
 
@@ -161,6 +169,7 @@ void setup() {
 * handle http events
 */
 void loop() {
+  dnsServer.processNextRequest();
   server.handleClient();
 }
 
