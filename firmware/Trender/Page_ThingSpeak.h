@@ -74,11 +74,12 @@ void send_thingspeak_values_html ()
 
   String values ="";
 
-  values += "x_channelid|" + (String)myThingSpeakChannel +  "|div\n";
+  values += "x_channelid|" + (String)channelID +  "|div\n";
   server.send ( 200, "text/plain", values);
   Serial.println(__FUNCTION__);
   
   thingSpeakMode=1;
+  tkt.detach();
   
  
   

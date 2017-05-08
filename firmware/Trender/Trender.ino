@@ -33,13 +33,82 @@
 char mySSID[13];
 
 
-#define myThingSpeakChannel "264242"
+
+ /**********************************************************/
+ /****            THINGSPEAK CONFIGURATION              ****/
+ /**********************************************************/
+const char* ThingSpeakServer = "api.thingspeak.com";  // server's address
+const unsigned char  ThingSpeakPort = 80; 
+
+//thinkgspeak API KEY for Trenders. R,G,B will be retrieve from this channel
+//TODO : this data shall be modified by dedicated configuration page
+const char* channelID = "*****";   
+
 unsigned char thingSpeakMode = 0;
 /**
 0: Accepoint mode ( configuration, timekeeper ) , 
 1: Thingspeak mode, init mode. Close AP, open Wifi to connect to thingspeak server
 2: wifi established, import RGB values and update neopixels accordingly 
 */
+
+
+ /**********************************************************/
+ /****            JSON PARSER CONFIGURATION             ****/
+ /**********************************************************/
+#include <ArduinoJson.h>
+
+// resource1 & resource2 are constant values to be used to parse json file computed by thingspeal
+const char* resource1 = "/channels/";   // http resource screened 
+const char* resource2 = "/feeds/last.json"; 
+const unsigned long HTTP_TIMEOUT = 20000;  // max response time from server
+const size_t MAX_CONTENT_SIZE = 512;       // max size of the HTTP response
+
+// The type of data that we want to extract from the page
+struct UserData {
+  char created_at[128]; 
+  unsigned long entry_id;
+  unsigned char field1; 
+  unsigned char field2; 
+  unsigned char field3;  
+  unsigned char field4;   
+  unsigned char field5;   
+  unsigned char field6;   
+  unsigned char field7;   
+};
+
+
+
+
+unsigned char newSampleDetected=0;
+char timestamp[32]="dummydata";
+StaticJsonBuffer<200> jsonBuffer;
+
+
+ /**********************************************************/
+ /****            WIFI CONFIGURATION                ****/
+ /**********************************************************/
+ 
+
+ 
+//////////////////////
+// WiFi Definitions //
+//////////////////////
+char ssid[] = "***";      //  your network SSID (name) // TODO : shall be configurable from webserver
+char pass[] = "**";   // your network password // TODO : shall be configurable from webserver
+
+ 
+
+#define NB_TRY 10 /**< duration of wifi connection trial before aborting (seconds) */
+int status = WL_IDLE_STATUS;
+IPAddress myIp;
+WiFiClient client;
+
+
+ /**********************************************************/
+ /****            Access Point CONFIGURATION            ****/
+ /**********************************************************/
+
+
 
 ESP8266WebServer server(80);
 Ticker tk, tki, tkb,tkt;
@@ -92,9 +161,22 @@ uint8_t currentMode = STOPPED;
 #include "Page_ThingSpeak.h"
 #include "favicon.h"
 
+
+
+
+ /**********************************************************/
+ /****            NEOPIXEL CONFIGURATION                ****/
+ /**********************************************************/
+
+
+
 #define PIN D2
 #define PIN_INPUT D5
 #define NBPIX 16 // take into account several neopixels footprints: 1 pixel, 1 row of 8 pixels, 1 square of 4*4=16 pixels
+
+
+
+
 
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = Arduino pin number (most are valid)
@@ -104,12 +186,20 @@ uint8_t currentMode = STOPPED;
 //   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
 //   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
 //   NEO_RGBW    Pixels are wired for RGBW bitstream (NeoPixel RGBW products)
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(NBPIX, PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NBPIX, PIN, NEO_GRB + NEO_KHZ800);
 
 // IMPORTANT: To reduce NeoPixel burnout risk, add 1000 uF capacitor across
 // pixel power leads, add 300 - 500 Ohm resistor on first pixel's data input
 // and minimize distance between Arduino and first pixel.  Avoid connecting
 // on a live circuit...if you must, connect GND first.
+
+
+//Following data will be updated once json file is parsed
+uint8_t R=0;
+uint8_t G=0;
+uint8_t B=0;
+
+uint8_t brightness = 255; //sets the default brightness value
 
 void setup() {
   uint8_t mac[6];
@@ -117,8 +207,8 @@ void setup() {
   WiFi.macAddress(mac);
   snprintf (mySSID, 13, "%s%02X%02X", baseSSID, mac[4], mac[5]);
   
-  strip.begin();
-  strip.show(); // Initialize all pixels to 'off'
+  pixels.begin();
+  pixels.show(); // Initialize all pixels to 'off'
 
   Serial.begin(115200);
   Serial.println(VERSION);
@@ -195,20 +285,39 @@ void loop() {
 			  server.handleClient();				
 			  break;
 			case 1:
-				Serial.println("Close AP and open Connection to thingspeak server: TBC");
+				Serial.println("Close AP and open Connection to thingspeak server");
 				Serial.println("ThingSpeakMode enabled");
 				setColor(0xff0000);
-				delay(300);
-				setColor(0x00ff00);
 				delay(300);
 				setColor(0x0000ff);
 				delay(300);
 				setColor(0);
-				thingSpeakMode=2;		
+				setupWiFi();
 			  break;			  
 			case 2:
-			  Serial.println("Recover data: TBC");
-			  delay(5000);
+			 
+				//------------------------------------ 
+				// Interaction with ThingSpeak  
+				//------------------------------------	
+				// Retrieve latest value from ThingSpeak Database
+				if (client.connect(ThingSpeakServer,ThingSpeakPort)) {
+							Serial.println("connected to thingspeak");  
+					
+							if (sendRequest(ThingSpeakServer) && skipResponseHeaders() && skipThingSpeakHeader() ) {
+							  char response[MAX_CONTENT_SIZE];
+							   delay(2000);
+							  readReponseContent(response, sizeof(response));
+							  UserData userData;
+							  if (parseUserData(response, &userData)) {
+								printUserData(&userData);
+							  }
+							}
+							
+						}
+						else{
+							Serial.println("ThingSpeakServer connection error");
+						}
+						delay(2000); 
 			  break;
 			default:
 			break;
@@ -225,16 +334,16 @@ void tkColor() {
   static uint16_t j=0;
 
   if (!showRainbow) {
-    for (i = 0; i < strip.numPixels(); i++) {
-      strip.setPixelColor(i, color);
+    for (i = 0; i < pixels.numPixels(); i++) {
+      pixels.setPixelColor(i, color);
     }
   } else {
-    for (i = 0; i < strip.numPixels(); i++) {
-      strip.setPixelColor(i, Wheel(j));
+    for (i = 0; i < pixels.numPixels(); i++) {
+      pixels.setPixelColor(i, Wheel(j));
     }
     j = (j+1) % 255;
   }
-  strip.show();
+  pixels.show();
 }
 
 /** read input PIN_INPUT
@@ -274,14 +383,14 @@ void tkInput () {
 void setColor (uint32_t col) {
     uint8_t i=0;
 
-//     Serial.println(strip.getPixelColor(0),HEX);
+//     Serial.println(pixels.getPixelColor(0),HEX);
 //     Serial.println(col,HEX);
 
-    for (i = 0; i < strip.numPixels(); i++) {
-      strip.setPixelColor(i, col);
+    for (i = 0; i < pixels.numPixels(); i++) {
+      pixels.setPixelColor(i, col);
     }
-	strip.setBrightness (255);
-    strip.show();
+	pixels.setBrightness (255);
+    pixels.show();
 }
 
 /** ticker callback for heartbeat
@@ -291,15 +400,15 @@ void tkHeartbeat(void) {
     static uint8_t decrement = 1;///< going up or down
 
     if (decrement) {
-        strip.setBrightness (bright);
+        pixels.setBrightness (bright);
         bright -= 20;
         if (bright <= 50) decrement = 0;
     } else {
-        strip.setBrightness (bright);
+        pixels.setBrightness (bright);
         bright += 20;
         if (bright >= 255) decrement = 1;
     }
-    strip.show();
+    pixels.show();
 }
 
 /** ticker callback for trender main timer
@@ -475,6 +584,54 @@ void writeConfig (void) {
     EEPROM.commit();
 }// writeConfig
 
+
+
+
+
+ /**********************************************************/
+ /****            NEOPIXEL FUNCTIONS                    ****/
+ /**********************************************************/
+
+
+//-------------------------------------------------------
+void writeLEDS(byte R, byte G, byte B)//basic write colors to the neopixels with RGB values
+//-------------------------------------------------------
+{
+	
+	#ifdef DEBUG_MODE
+	 Serial.print("R:");
+	 Serial.println(R);
+	 Serial.print("G:");
+	 Serial.println(G);
+	 Serial.print("B:");
+	 Serial.println(B);	 
+	#endif
+	
+  for (int i = 0; i < pixels.numPixels(); i ++)
+  {
+    pixels.setPixelColor(i, pixels.Color(R, G, B));
+  }
+  pixels.show();
+}
+
+//-------------------------------------------------------
+void writeLEDS(byte R, byte G, byte B, byte bright)//same as above with brightness added
+//-------------------------------------------------------
+{
+  float fR = (R / 255) * bright;
+  float fG = (G / 255) * bright;
+  float fB = (B / 255) * bright;
+  for (int i = 0; i < pixels.numPixels(); i ++)
+  {
+    pixels.setPixelColor(i, pixels.Color(R, G, B));
+  }
+  pixels.show();
+}
+
+
+
+
+
 /** Input a value 0 to 255 to get a color value.
 * The colours are a transition r - g - b - back to r.
 * @param WheelPos current whell position 0-255
@@ -482,14 +639,14 @@ void writeConfig (void) {
 uint32_t Wheel(byte WheelPos) {
   WheelPos = 255 - WheelPos;
   if (WheelPos < 85) {
-    return strip.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+    return pixels.Color(255 - WheelPos * 3, 0, WheelPos * 3);
   }
   if (WheelPos < 170) {
     WheelPos -= 85;
-    return strip.Color(0, WheelPos * 3, 255 - WheelPos * 3);
+    return pixels.Color(0, WheelPos * 3, 255 - WheelPos * 3);
   }
   WheelPos -= 170;
-  return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
+  return pixels.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
 }
 
 /** Go to designated color
@@ -502,7 +659,7 @@ uint32_t Wheel(byte WheelPos) {
  */
 void gotoColor (uint32_t color, uint8_t wait)
 {
-   uint32_t cColor = strip.getPixelColor(0);  /** current color */
+   uint32_t cColor = pixels.getPixelColor(0);  /** current color */
    uint8_t rc = cColor >> 16;               /** current red */
    uint8_t gc = cColor >> 8 & 0xFF;         /** current green */
    uint8_t bc = cColor & 0xFF;              /** current blue */
@@ -530,9 +687,336 @@ void gotoColor (uint32_t color, uint8_t wait)
          gc += gi;
       if (bc != (color&0xFF))
          bc += bi;
-      cColor = strip.Color (rc,gc,bc);
+      cColor = pixels.Color (rc,gc,bc);
       setColor (cColor);
       delay(wait);
    }
 } // gotoColor
+
+
+//-------------------------------------------------------
+// WIFI CLIENT FUNCTIONS
+//-------------------------------------------------------
+
+
+
+//-------------------------------------------------------
+/** connect to an existing wifi network
+ *  @param[in] ssid the ssid of the network
+ *  @param[in] pwd the password of the network
+ *  @return assigned ip address
+ */
+IPAddress wicoSetupWifi(char* ssid, char* pwd) {
+//-------------------------------------------------------
+    // try connecting to a WiFi network
+    WiFi.mode(WIFI_STA);
+    WiFi.disconnect();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, pwd);
+  for (int i=0; i<2*NB_TRY; i++) {
+    if (WiFi.status() == WL_CONNECTED) {
+      return WiFi.localIP();
+    }
+    Serial.print(WiFi.status());
+    delay(500);
+	//Twist for a while to show we are still looking for wifi
+	   for (int i=0; i <= 3; i++){
+			//  White	 Band
+			R=128;
+			G=0;
+			B=0;	
+			writeLEDS(R, G, B);   
+			delay (50);
+			R=0;
+			G=0;
+			B=0;	
+			writeLEDS(R, G, B);   
+			delay (50);		
+	   } 	
+	   
+	   if (status != WL_CONNECTED) {
+		   Serial.println("Wifi not connected :-( ");		   
+	   }
+
+  }
+  return IPAddress (0,0,0,0);
+}
+
+
+
+
+
+//-------------------------------------------------------
+void setupWiFi()
+//-------------------------------------------------------
+{
+
+
+  myIp = wicoSetupWifi (ssid, pass);
+  if (myIp != IPAddress(0,0,0,0)) {
+    // success
+	Serial.println("Successfully Connected to WIFI :-)");  
+	//Blue Color
+	
+	R=0;
+	G=0;
+	B=255;	
+	writeLEDS(R, G, B); 
+	delay(500);	
+	//Breath();	
+	//Black Color
+	R=0;
+	G=0;
+	B=0;	
+	writeLEDS(R, G, B);      
+	delay (50);	
+	
+
+    Serial.println("Wifi Successfully Configured, IP: ");  
+	Serial.println(myIp); 
+
+	//Ready for Next State in main loop
+	thingSpeakMode=2;		
+	
+
+ 	
+  } 
+  else
+  {
+	Serial.println("Failed connecting to WIFI, go back to Access Point to adapt Wifi parameters "); 
+	ESP.restart();//Same results as ESP.reset() // TODO: to be enhanced, this does not reboot properly, stuck in "wdt reset" mode :-(
+	//thingSpeakMode=5;
+
+  }
+ 
+
+ 
+
+
+}
+
+
+
+
+
+
+
+
+ /**********************************************************/
+ /****            JSON FUNCTIONS                        ****/
+ /**********************************************************/
+
+
+
+
+// Send the HTTP GET request to the server
+//---------------------------------------- 
+bool sendRequest(const char* host) {
+//---------------------------------------- 
+  
+  Serial.println("Is there anybody out there?");
+  //Serial.println(resource);
+  
+
+  client.print("GET ");
+  
+  client.print(resource1);
+  client.print(channelID);
+  client.print(resource2);
+  client.println(" HTTP/1.1");
+  client.print("Host: ");
+  client.println(host);
+  client.println("Connection: close");
+  client.println();
+
+  return true;
+}
+
+
+
+
+// Skip HTTP headers so that we are at the beginning of the response's body
+//---------------------------------------- 
+bool skipResponseHeaders() {
+//---------------------------------------- 
+  // HTTP headers end with an empty line
+  char endOfHeaders[] = "\r\n\r\n";
+
+  client.setTimeout(HTTP_TIMEOUT);
+  bool ok = client.find(endOfHeaders);
+
+  if (!ok) {
+    Serial.println("No response or invalid response!");
+	
+	//Twist for a while to show we found something wrong
+	   for (int i=0; i <= 10; i++){
+			//  Red	 Band
+			R=255;
+			G=0;
+			B=0;	
+			writeLEDS(R, G, B);   
+			delay (50);
+			//  White	 Band
+			R=0;
+			G=0;
+			B=0;	
+			writeLEDS(R, G, B);   
+			delay (50);		
+	   } 
+			//  Red	 Band
+			R=255;
+			G=0;
+			B=0;	
+			writeLEDS(R, G, B);   	
+  }
+
+  return ok;
+}
+
+// Skip HTTP headers so that we are at the beginning of the response's body
+//-------------------------------------------------------
+bool skipThingSpeakHeader() {
+//-------------------------------------------------------
+
+
+  // Flush first line to go to align to json body
+  char endOfHeaders[] = "\r\n";
+
+  client.setTimeout(HTTP_TIMEOUT);
+  bool ok = client.find(endOfHeaders);
+
+  if (!ok) {
+    Serial.println("ThingSpeak Header not found :-(");
+	//Twist for a while to show we found something wrong
+	   for (int i=0; i <= 10; i++){
+			//  Red	 Band
+			R=255;
+			G=0;
+			B=0;	
+			writeLEDS(R, G, B);   
+			delay (50);
+			//  White	 Band
+			R=0;
+			G=0;
+			B=0;	
+			writeLEDS(R, G, B);   
+			delay (50);		
+	   } 
+			//  Red	 Band
+			R=255;
+			G=0;
+			B=0;	
+			writeLEDS(R, G, B);   	   
+	   
+  }
+
+
+
+  return ok;
+}
+
+
+
+// Read the body of the response from the HTTP server
+//-------------------------------------------------------
+void readReponseContent(char* content, size_t maxSize) {
+//-------------------------------------------------------
+  size_t length = client.readBytes(content, maxSize);
+  content[length] = 0;
+  Serial.println(content);
+}
+
+
+
+// Parse the JSON from the input string and extract the interesting values
+//-------------------------------------------------------
+bool parseUserData(char* content, struct UserData* userData) {
+//-------------------------------------------------------
+  // Compute optimal size of the JSON buffer according to what we need to parse.
+  // This is only required if you use StaticJsonBuffer.
+  const size_t BUFFER_SIZE =
+      JSON_OBJECT_SIZE(10);     // the root object has 10 elements
+/*
+{"created_at":"2017-05-08T11:27:12Z","entry_id":3397,"field1":"90","field2":"0","field3":"0","field4":null,"field5":null,"field6":null,"field7":null,"field8":null}
+*/
+
+
+
+  // Allocate a temporary memory pool on the stack
+  StaticJsonBuffer<BUFFER_SIZE> jsonBuffer;
+  // If the memory pool is too big for the stack, use this instead:
+  // DynamicJsonBuffer jsonBuffer;
+
+  JsonObject& root = jsonBuffer.parseObject(content);
+
+  if (!root.success()) {
+    Serial.println("JSON parsing failed!");
+    return false;
+  }
+
+  // Here were copy the strings we're interested in
+  
+  strcpy(userData->created_at, root["created_at"]);  
+  userData->field1=atoi(root["field1"]);
+  userData->field2=atoi(root["field2"]);
+  userData->field3=atoi(root["field3"]);
+
+
+  return true;
+}
+
+// Print the data extracted from the JSON
+//-------------------------------------------------------
+void printUserData(const struct UserData* userData) {
+//-------------------------------------------------------
+
+  
+  Serial.print("old timestamp: ");
+  Serial.println(timestamp);
+  
+ 
+  Serial.print("created_at = ");
+  Serial.println(userData->created_at);
+  Serial.print("Field1 = ");
+  Serial.println(userData->field1);
+  Serial.print("Field2 = ");
+  Serial.println(userData->field2);
+  Serial.print("Field3 = ");
+  Serial.println(userData->field3); 
+
+  
+  //Check If this is a new sample
+  if (strcmp(timestamp,userData->created_at)  != 0)
+  {
+    Serial.println("Hey Dude! We have something new here, let's rock!");
+	newSampleDetected=1;
+	
+	
+	R=userData->field1;
+	G=userData->field2;
+	B=userData->field3;	
+
+
+	strcpy(timestamp,userData->created_at);
+	
+
+	
+	
+	writeLEDS(R, G, B); //TODO : this should be done elsewhere, to control neopixel in a dedicated thread!
+
+
+	
+	
+  }
+  else
+  { 
+    Serial.println("go to bed...");
+	newSampleDetected=0;	
+
+  }  
+
+	  
+}
+
 
