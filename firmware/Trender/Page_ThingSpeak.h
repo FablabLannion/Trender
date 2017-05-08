@@ -19,33 +19,70 @@
  *  Copyright 2016 Julien Jacques julien.jacques@galilabs.com
  */
 
-const char PAGE_AdminMainPage[]  = R"=====(
+#ifndef PAGE_THINGPSEAK_H
+#define PAGE_THINGPSEAK_H
+
+
+//
+//   The HTML PAGE
+//
+const char PAGE_ThingSpeak[]  = R"=====(
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<strong>Administration</strong>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" href="style.css" type="text/css" />
+<script src="microajax.js"></script>
+<a href="/"  class="btn btn--s"><</a>&nbsp;&nbsp;<strong>ThingSpeak Mode enabled, reset device to go back to Configuration Mode</strong>
 <hr>
-<a href="info"   style="width:250px"  class="btn btn--m btn--blue" >Network Information</a><br>
-<a href="thingspeak"   style="width:250px"  class="btn btn--m btn--blue" >Set ThingSpeak Mode</a><br>
-<a href="config"   style="width:250px"  class="btn btn--m btn--blue" >TimeKeeper Configuration</a><br>
-<!-- <a href="color"   style="width:250px"  class="btn btn--m btn--blue" >Color</a><br> -->
-<a href="start"   style="width:250px"  class="btn btn--m btn--blue" >Start TimeKeeper</a>
-<a href="stop"   style="width:250px"  class="btn btn--m btn--blue" >Stop TimeKeeper</a><br>
-
-
+<table border="0"  cellspacing="0" cellpadding="3" style="width:310px" > 
+<tr><td align="right">ChannelID :</td><td><span id="x_channelid"></span></td></tr>
+<tr><td colspan="2" align="center"><a href="javascript:GetThingSpeakState()" class="btn btn--m btn--blue">Refresh</a></td></tr>
+</table>
 <script>
+
+function GetThingSpeakState()
+{
+  setValues("/admin/infothingspeak");
+}
+
 window.onload = function ()
 {
   load("style.css","css", function()
   {
     load("microajax.js","js", function()
     {
-        // Do something after load...
+        GetThingSpeakState();
     });
   });
 }
 function load(e,t,n){if("js"==t){var a=document.createElement("script");a.src=e,a.type="text/javascript",a.async=!1,a.onload=function(){n()},document.getElementsByTagName("head")[0].appendChild(a)}else if("css"==t){var a=document.createElement("link");a.href=e,a.rel="stylesheet",a.type="text/css",a.async=!1,a.onload=function(){n()},document.getElementsByTagName("head")[0].appendChild(a)}}
 
+
+
 </script>
+)=====" ;
 
-)=====";
 
 
+
+
+//
+// FILL WITH INFOMATION
+//
+
+void send_thingspeak_values_html ()
+{
+
+  String values ="";
+
+  values += "x_channelid|" + (String)myThingSpeakChannel +  "|div\n";
+  server.send ( 200, "text/plain", values);
+  Serial.println(__FUNCTION__);
+  
+  thingSpeakMode=1;
+  
+ 
+  
+
+}
+
+#endif

@@ -32,12 +32,24 @@
 #define VERSION "Trender v1.0"
 char mySSID[13];
 
+
+#define myThingSpeakChannel "264242"
+unsigned char thingSpeakMode = 0;
+/**
+0: Accepoint mode ( configuration, timekeeper ) , 
+1: Thingspeak mode, init mode. Close AP, open Wifi to connect to thingspeak server
+2: wifi established, import RGB values and update neopixels accordingly 
+*/
+
 ESP8266WebServer server(80);
-Ticker tk, tki, tkb;
+Ticker tk, tki, tkb,tkt;
 /** base rate for heartbeat ticker */
 #define TKB_BASE_RATE 0.10
 /** base rate for main ticker */
 #define TK_BASE_RATE 1
+/** base rate for timeout ticker ( tkt) */
+#define TK_BASE_TIMEOUT 30
+
 volatile boolean showRainbow = false;
 volatile uint32_t color = 0;
 
@@ -77,11 +89,12 @@ uint8_t currentMode = STOPPED;
 #include "Page_Script_js.h"
 #include "Page_Style_css.h"
 #include "Page_Information.h"
+#include "Page_ThingSpeak.h"
 #include "favicon.h"
 
 #define PIN D2
 #define PIN_INPUT D5
-#define NBPIX 3
+#define NBPIX 16 // take into account several neopixels footprints: 1 pixel, 1 row of 8 pixels, 1 square of 4*4=16 pixels
 
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = Arduino pin number (most are valid)
@@ -118,11 +131,14 @@ void setup() {
   server.on ( "/", []() { Serial.println("/.html"); server.send ( 200, "text/html", PAGE_AdminMainPage );   }  );
   server.on ( "/admin", []() { Serial.println("admin.html"); server.send ( 200, "text/html", PAGE_AdminMainPage );   }  );
   server.on ( "/admin/infovalues", send_information_values_html);
+  server.on ( "/admin/infothingspeak", send_thingspeak_values_html);
+  
   server.on ( "/info", []() { Serial.println("info.html"); server.send ( 200, "text/html", PAGE_Information );   }  );
 //   server.on ( "/color", processColor);
 //   server.on ( "/color/values", sendColorData);
   server.on ( "/config", []() { processConfig(); writeConfig();});
-  server.on ( "/config/values", sendConfigData);
+  server.on ( "/thingspeak", []() { Serial.println("thingspeak.html"); server.send ( 200, "text/html", PAGE_ThingSpeak );   }  );  
+  server.on ( "/config/values", []() { Serial.println("Disable ThingSpeak timeout mode"); thingSpeakMode=0;tkt.detach();sendConfigData();});
   server.on ( "/style.css", []() { Serial.println("style.css"); server.send ( 200, "text/plain", PAGE_Style_css );  } );
   server.on ( "/microajax.js", []() { Serial.println("microajax.js"); server.send ( 200, "text/plain", PAGE_microajax_js );  } );
   server.on ( "/start", []() { Serial.println("start"); start(); server.send ( 200, "text/html", PAGE_AdminMainPage ); } );
@@ -151,6 +167,7 @@ void setup() {
 
   pinMode (PIN_INPUT, INPUT);
   tki.attach(0.1, tkInput);
+  tkt.attach(TK_BASE_TIMEOUT, tkCheckMode); 
 
     setColor(0xff0000);
     delay(300);
@@ -169,13 +186,39 @@ void setup() {
 * handle http events
 */
 void loop() {
-  dnsServer.processNextRequest();
-  server.handleClient();
+	
+	
+		switch (thingSpeakMode) {
+			case 0:
+			   //Access point mode
+			  dnsServer.processNextRequest();
+			  server.handleClient();				
+			  break;
+			case 1:
+				Serial.println("Close AP and open Connection to thingspeak server: TBC");
+				Serial.println("ThingSpeakMode enabled");
+				setColor(0xff0000);
+				delay(300);
+				setColor(0x00ff00);
+				delay(300);
+				setColor(0x0000ff);
+				delay(300);
+				setColor(0);
+				thingSpeakMode=2;		
+			  break;			  
+			case 2:
+			  Serial.println("Recover data: TBC");
+			  delay(5000);
+			  break;
+			default:
+			break;
+		  }	
+	
 }
 
 
 /** ticker callback for rainbow mode
-* NOT USED anymode
+* NOT USED anymore
 */
 void tkColor() {
   uint16_t i;
@@ -210,6 +253,20 @@ void tkInput () {
    }
    previousState = r;
 }//tkInput
+
+
+
+/** Check if we need to stay into landing page of force Thingkspeak connector
+ */
+ void tkCheckMode () {
+
+  Serial.println("Timeout reached, force ThingspeakMode");
+  thingSpeakMode=1;
+  tkt.detach();
+
+}//tkCheckMode
+
+
 
 /** set all pixel to color
  * @param col the color as 0xRRGGBB
@@ -331,6 +388,9 @@ void tkTrender(void) {
 /** start main timer
  */
 void start (void) {
+	// Disable timeout timer if any
+	tkt.detach();
+	  
     // flash to show the 3 colors
     setColor(config.colors[0]);
     delay(500);
