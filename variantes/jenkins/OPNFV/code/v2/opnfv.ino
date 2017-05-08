@@ -53,6 +53,9 @@ ESP8266WebServer server(80);
 // ***********************************************************
 void setup() {
   EEPROM.begin(512);
+  
+  // init LEDs
+  pixels.begin();
 
   // Init
   WiFi.persistent(false);
@@ -60,18 +63,23 @@ void setup() {
   Serial.println();
   Serial.printf ("\n\n%s\n", VERSION);
 
+ int check_eprom = wicoReadWifiConfig (0, ssid, pwd, installer, opnfv_version);
+ 
   // Wifi setup
-  if (wicoReadWifiConfig (0, ssid, pwd, installer, opnfv_version) ==1) {
+  if (check_eprom != 1 or ssid == "") {
+    Serial.println("Setup Wifi");
+    setupWifi();
+    delay(500);
+    ledCheck();
+  } else {
     Serial.println("SSID retrieved:");
     Serial.println(ssid);
     Serial.println("PWD retrieved:****************");
     Serial.println("Installer retrieved:");
     Serial.println(installer);
     Serial.println("OPNFV Version retrieved:");
-    Serial.println(opnfv_version);  
-  } else {
-    Serial.println("Setup Wifi");
-    setupWifi();
+    Serial.println(opnfv_version);
+    delay(500);
   }
 
   IPAddress my_ip = wicoSetupWifi(ssid, pwd);
@@ -81,10 +89,9 @@ void setup() {
   while ( my_ip  == IPAddress(0,0,0,0) ){
     Serial.println("IP address not valid");
     Serial.println("Clean EEprom");
-    wicoResetWifiConfig(0);
     Serial.println("Setup local AP to get SSID");
     setupWifi();
-    delay(500);
+    delay(2000);
     Serial.println("Read EEprom values");
     wicoReadWifiConfig (0, ssid, pwd, installer, opnfv_version);
     my_ip = wicoSetupWifi(ssid, pwd);
@@ -93,13 +100,11 @@ void setup() {
 
   Serial.println("");
   Serial.println("WiFi connected");
-  Serial.println("IP address: ");
+  Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
-
-  // init LEDs
-  pixels.begin();
-  
-  }
+  Serial.println("");
+  delay(500);
+}
 
 // ***********************************************************
 // ***********************************************************
@@ -172,7 +177,7 @@ void setupWifi (void) {
   server.onNotFound ( handleNotFound );
   server.begin();
   Serial.println("HTTP server started");
-
+  Serial.println("");
 }
 
 
@@ -342,6 +347,18 @@ void ledManagement(int res){
   }
    extinction();
    delay(10000);
+}
+
+void ledCheck(){
+  Serial.println("Run red led sequence");
+  clignotement(255,64,64,10);
+  Serial.println("Run green led sequence");
+  clignotement(0,100,0,10);
+  Serial.println("Run yellow led sequence");
+  clignotement(255,255,0,10);
+  Serial.println("Clignotement bleu");
+  clignotement(0,255,255,10);
+  extinction();
 }
 
 /*
