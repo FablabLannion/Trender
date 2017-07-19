@@ -1,3 +1,32 @@
+# Arduino Library for Trender
+# compatible with Arduino IDE 1.6.12 or above
+
+# This is a first commit (ie code is perfectible :-)
+# At this point, this code supports: 
+* Color: pick a color and run rainbow mode
+* Timekeeper mode
+
+# How to add this library
+* rename "libraries" folder to "Trender"
+* create a zip file and add the "Trender" (the one you've just renamed)
+* open the Arduino IDE 
+* in the "Sketch" menu, select "include a library" > "add the library .ZIP"
+* choose the Trender.zip file you created
+
+# you can open the sketch "testlibtrender" 
+
+# Warnings 
+* Compilator warns on deprecated usage of char* -> to be replaced by the 
+usage of `String` class
+
+# TODO
+* improve the design :)
+* add Doxygen comments to create code documentation
+* add the Thinkspeak connector
+* add Jenkins usage
+
+
+-------------------------------------------------------------------------------
 
 # Cahier des charges
 
