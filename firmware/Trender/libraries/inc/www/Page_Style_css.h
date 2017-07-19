@@ -1,3 +1,6 @@
+#ifndef __TDR_PAGE_STYLE_CSS_H__
+#define __TDR_PAGE_STYLE_CSS_H__
+
 /**
  *  This file is part of Trender.
  *
@@ -86,4 +89,4 @@ color: #fff;
   }
 )=====";
 
-
+#endif

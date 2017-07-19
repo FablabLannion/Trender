@@ -1,3 +1,5 @@
+#ifndef __TDR_PAGE_COLOR_H__
+#define __TDR_PAGE_COLOR_H__
 /**
  *  This file is part of Trender.
  *
@@ -18,7 +20,8 @@
  *  Copyright 2016 Cédric Bernard cedric.bernard@galilabs.com
  *  Copyright 2016 Julien Jacques julien.jacques@galilabs.com
  */
-
+//#include "../TDR_WebServer.h"
+//#include "../TDR_NeoPixel.h"
 
 const char PAGE_Color[] = R"=====(
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -53,29 +56,4 @@ function load(e,t,n){if("js"==t){var a=document.createElement("script");a.src=e,
 
 )=====";
 
-void sendColorData () {
-  String values ="";
-  values += "rainbow|" +  (String) (showRainbow ? "checked" : "") + "|chk\n";
-  server.send ( 200, "text/plain", values);
-  Serial.println(__FUNCTION__);
-}
-
-void processColor ()
-{
-  if (server.args() > 0) {
-    if (server.hasArg("rainbow")) {
-      showRainbow = true;
-    }
-    else {
-      showRainbow = false;
-      color = (server.arg("cR").toInt()&0xFF) << 16 |
-              (server.arg("cG").toInt()&0xFF) <<  8 |
-              (server.arg("cB").toInt()&0xFF);
-      Serial.println(color, HEX);
-    }
-  }
-
-  server.send ( 200, "text/html", PAGE_Color);
-  Serial.println(__FUNCTION__);
-
-}
+#endif
