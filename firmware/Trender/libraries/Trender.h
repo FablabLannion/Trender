@@ -30,7 +30,7 @@
 
 #include "inc/TDR_WebServer.h"
 #include "inc/TDR_WebClient.h"
-#include "inc/TDR_Sensor.h"
+#include "inc/TDR_Device.h"
 #include "inc/TDR_Usage.h"
 
 class Trender {
@@ -40,7 +40,7 @@ class Trender {
 		unsigned char		_thingSpeakMode;	/** TDR_FALSE if no TS is not used, TDR_TRUE otherwise */
 		TDR_WebServer*      _webserver;			/** instanciate the Trender with active Web server */
 		TDR_WebClient*		_webclient;			/** instanciate the Trender as a Web client */
-		std::list<TDR_Sensor*>	_sensors; 		/** list of the current supported sensors */
+		std::list<TDR_Device*>	_devices; 		/** list of the current supported devices */
 		std::list<TDR_Usage*>	_usages;		/** list of the current supported usages */
 		uint8_t             _uv;                /** usages vector */
 //		TDR_AccessPoint*	_ap;				/** TBD if needed */
@@ -48,7 +48,7 @@ class Trender {
 		Trender();
 		Trender(TDR_WebServer* ws);
 		Trender(TDR_WebClient* wc);
-		Trender(TDR_Sensor* s);
+		Trender(TDR_Device* s);
 		Trender(TDR_Usage* u);
 		Trender(TDR_USAGES_t);
 
@@ -66,20 +66,20 @@ class Trender {
 		int  serveWebRequest();
 
 
-		uint8_t	setupSensors();
-		int     showSensorsType();
-		TDR_Sensor& findFirstSensorOf(char* type);
-		std::list<TDR_Sensor*>* findAllSensorsOf(char* type);
+		uint8_t	setupDevices();
+		int     showDevicesType();
+		TDR_Device& findFirstDeviceOf(char* type);
+		std::list<TDR_Device*>* findAllDevicesOf(char* type);
 		std::list<TDR_Usage*>*  findAllUsagesOf(char* type);
 
-		int addSensor(TDR_Sensor* s);
+		int addDevice(TDR_Device* s);
 		int addUsage(TDR_Usage* u);
 
 		void modeDemo();
 
 		void err_msg(const char* f, const char* msg);
 		void showNameVersion();
-		void showAllSensorsOf(char *type);
+		void showAllDevicesOf(char *type);
 };
 
 

@@ -24,12 +24,12 @@
  
 #include <Ticker.h>
 #include <Adafruit_NeoPixel.h>
-#include "TDR_Sensor_out.h"
+#include "TDR_Activator.h"
 #include "TDR_WebServer.h"
 
 
 
-class TDR_NeoPixel : public TDR_Sensor_out { 
+class TDR_NeoPixel : public TDR_Activator { 
 protected:
 	char*     _type = "neopixel";
 	uint16_t  _no_leds; /** number of LEDs */

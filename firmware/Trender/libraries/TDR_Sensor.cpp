@@ -18,10 +18,10 @@
  *  Copyright 2016 Cédric Bernard cedric.bernard@galilabs.com
  *  Copyright 2016 Julien Jacques julien.jacques@galilabs.com
  */
- 
+
 #include "inc/TDR_Sensor.h"
 
-// class TDR_Sensor 
+// class TDR_Sensor : public TDR_Device
 TDR_Sensor::TDR_Sensor(){
 
 }

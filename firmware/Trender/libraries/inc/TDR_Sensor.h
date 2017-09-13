@@ -22,16 +22,12 @@
  *  Copyright 2016 Julien Jacques julien.jacques@galilabs.com
  */
  
-#include <Arduino.h>
+#include "TDR_Device.h"
 
-class TDR_Sensor {
-protected:
-	char* _type;
+class TDR_Sensor : public TDR_Device {
 public:
 	TDR_Sensor();
 	~TDR_Sensor();
-	virtual uint8_t setup()=0;
-	virtual char*   get_type()=0;
 };
 
 #endif

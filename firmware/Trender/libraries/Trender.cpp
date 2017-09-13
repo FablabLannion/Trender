@@ -28,7 +28,7 @@ Trender::Trender() {
 	_thingSpeakMode=TDR_FALSE;
 	_webserver     =NULL;
 	_webclient     =NULL;
-	_sensors       ;
+	_devices       ;
 	_usages        ;
 	_uv            =0;
 }
@@ -45,10 +45,10 @@ Trender::Trender(TDR_WebClient* wc)
 	_webclient=wc;
 }
 
-Trender::Trender(TDR_Sensor* s)
+Trender::Trender(TDR_Device* s)
 	: Trender()
 {
-	_sensors.push_back(s);
+	_devices.push_back(s);
 }
 
 Trender::Trender(TDR_Usage* u)
@@ -66,7 +66,7 @@ Trender::Trender(TDR_USAGES_t u=TDR_NOUSAGE)
 		_thingSpeakMode=TDR_FALSE;
 		_webserver     =NULL;
 		_webclient     =NULL;
-		_sensors       ;
+		_devices       ;
 		_usages        ;
 		_uv            =0;
 		err_msg(__func__,"warning: no usage selected !");
@@ -78,7 +78,7 @@ Trender::Trender(TDR_USAGES_t u=TDR_NOUSAGE)
 		_thingSpeakMode   = TDR_FALSE;
 		_webserver        = new TDR_WebServer();
 		_webclient        = NULL;
-		_sensors.push_back(astrip);     
+		_devices.push_back(astrip);     
 		_usages.push_back(new TDR_TimeKeeper(astrip));
 		_uv               = _uv|(1<<TDR_USG_TIMEKEEPER);
 		break;
@@ -97,7 +97,7 @@ Trender::Trender(TDR_USAGES_t u=TDR_NOUSAGE)
 }
 
 Trender::~Trender(){
-	_sensors.~list();
+	_devices.~list();
 	_usages.~list();
 }
 
@@ -115,47 +115,47 @@ uint8_t Trender::setup() {
 		_webserver->setup();
 		loadWebPages();
 	}
-	if(_sensors.size()>0) {
-		setupSensors();
+	if(_devices.size()>0) {
+		setupDevices();
 	}
 	return TDR_SUCCESS;
 }
-uint8_t Trender::setupSensors() {
-	TDR_Sensor* s = NULL;
-	for(std::list<TDR_Sensor*>::iterator it = _sensors.begin(); it != _sensors.end(); it++) {
+uint8_t Trender::setupDevices() {
+	TDR_Device* s = NULL;
+	for(std::list<TDR_Device*>::iterator it = _devices.begin(); it != _devices.end(); it++) {
 		s = *it;
 		s->setup();
 	}
 	return TDR_SUCCESS;
 }
 
-int     Trender::showSensorsType() {
-	TDR_Sensor* s = NULL;
-	for(std::list<TDR_Sensor*>::iterator it = _sensors.begin(); it != _sensors.end(); it++) {
+int     Trender::showDevicesType() {
+	TDR_Device* s = NULL;
+	for(std::list<TDR_Device*>::iterator it = _devices.begin(); it != _devices.end(); it++) {
 		s = *it;
 		Serial.println(s->get_type());
 	}
 	return TDR_SUCCESS;	
 }
 
-TDR_Sensor& Trender::findFirstSensorOf(char* type) {
-	std::list<TDR_Sensor*>::iterator it = _sensors.begin();
+TDR_Device& Trender::findFirstDeviceOf(char* type) {
+	std::list<TDR_Device*>::iterator it = _devices.begin();
 	for(; 
-		it != _sensors.end() && (strcmp((*it)->get_type(),type)!=0); 
+		it != _devices.end() && (strcmp((*it)->get_type(),type)!=0); 
 		it++) ;
-	return (TDR_Sensor&) *(*it);
+	return (TDR_Device&) *(*it);
 }
-std::list<TDR_Sensor*>* Trender::findAllSensorsOf(char* type) {
-	if(&_sensors==NULL) { Serial.print(__FUNCTION__); Serial.println(": [ERROR] :: _sensors should be instantiated"); return NULL; }
+std::list<TDR_Device*>* Trender::findAllDevicesOf(char* type) {
+	if(&_devices==NULL) { Serial.print(__FUNCTION__); Serial.println(": [ERROR] :: _devices should be instantiated"); return NULL; }
 
-	std::list<TDR_Sensor*> *lsensors=new std::list<TDR_Sensor*>();
-	for(std::list<TDR_Sensor*>::iterator it = _sensors.begin(); it != _sensors.end() ; it++) {
+	std::list<TDR_Device*> *ldevices=new std::list<TDR_Device*>();
+	for(std::list<TDR_Device*>::iterator it = _devices.begin(); it != _devices.end() ; it++) {
 		Serial.println((*it)->get_type());
 		if(strcmp((*it)->get_type(),type)==0) {
-			lsensors->push_back(*it);
+			ldevices->push_back(*it);
 		}
 	}
-	return lsensors;
+	return ldevices;
 }
 std::list<TDR_Usage*>* Trender::findAllUsagesOf(char* type) {
 	if(&_usages==NULL) { Serial.print(__FUNCTION__); Serial.println(": [ERROR] :: _usages should be instantiated"); return NULL; }
@@ -195,8 +195,8 @@ TDR_WebClient*  Trender::getWebClient() {
 }
 
 
-int  Trender::addSensor(TDR_Sensor* s){
-	_sensors.push_back(s);
+int  Trender::addDevice(TDR_Device* s){
+	_devices.push_back(s);
 	return TDR_SUCCESS;
 }
 
@@ -209,13 +209,13 @@ void Trender::modeDemo() {
 	//debug
 //	Serial.println(__FUNCTION__);
 
-	std::list<TDR_Sensor*> *strips=findAllSensorsOf("neopixel");
+	std::list<TDR_Device*> *strips=findAllDevicesOf("neopixel");
 	
-	for(std::list<TDR_Sensor*>::iterator it = strips->begin(); it != strips->end(); it++) {
+	for(std::list<TDR_Device*>::iterator it = strips->begin(); it != strips->end(); it++) {
 		TDR_NeoPixel* a_strip = (TDR_NeoPixel*)(*it);
 		a_strip->modeRainbow();
 	}
-	strips->std::list<TDR_Sensor*>::~list();
+	strips->std::list<TDR_Device*>::~list();
 }
 
 void  Trender::showNameVersion(){
@@ -231,18 +231,18 @@ void Trender::err_msg(const char* f, const char* msg) {
 	Serial.println(msg);
 }
 
-void Trender::showAllSensorsOf(char *type) {
-	std::list<TDR_Sensor*>* l=findAllSensorsOf(type);
-	for(std::list<TDR_Sensor*>::iterator it = l->begin(); it != l->end(); it++) {
+void Trender::showAllDevicesOf(char *type) {
+	std::list<TDR_Device*>* l=findAllDevicesOf(type);
+	for(std::list<TDR_Device*>::iterator it = l->begin(); it != l->end(); it++) {
 		Serial.println((*it)->get_type());
 	}
-	l->std::list<TDR_Sensor*>::~list();
+	l->std::list<TDR_Device*>::~list();
 }
 
 int  Trender::loadWebPages() {
 	ESP8266WebServer*        pserver=_webserver->getServer();
-	std::list<TDR_Sensor*>*  lneopix=(std::list<TDR_Sensor*>*) findAllSensorsOf("neopixel");
-	std::list<TDR_Sensor*>::iterator it=lneopix->begin();
+	std::list<TDR_Device*>*  lneopix=(std::list<TDR_Device*>*) findAllDevicesOf("neopixel");
+	std::list<TDR_Device*>::iterator it=lneopix->begin();
 	TDR_NeoPixel*            pneopix=(TDR_NeoPixel*)(*it);
 	std::list<TDR_Usage*>*   ltimekeeper=(std::list<TDR_Usage*>*) findAllUsagesOf("timekeeper");
 	std::list<TDR_Usage*>::iterator itk=ltimekeeper->begin();
