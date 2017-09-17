@@ -28,8 +28,9 @@
 
 #include "inc/Trender_defs.h"
 
-#include "inc/TDR_WebServer.h"
-#include "inc/TDR_WebClient.h"
+// #include "inc/TDR_WebServer.h"
+// #include "inc/TDR_WebClient.h"
+#include "inc/TDR_WifiManager.h"
 #include "inc/TDR_Device.h"
 #include "inc/TDR_Usage.h"
 
@@ -38,16 +39,18 @@ class Trender {
 		TDR_RETURN_t        tdr_return; 
 		TDR_USAGES_t        tdr_usages;
 		unsigned char		_thingSpeakMode;	/** TDR_FALSE if no TS is not used, TDR_TRUE otherwise */
-		TDR_WebServer*      _webserver;			/** instanciate the Trender with active Web server */
-		TDR_WebClient*		_webclient;			/** instanciate the Trender as a Web client */
+		// TDR_WebServer*      _webserver;			/** instanciate the Trender with active Web server */
+		// TDR_WebClient*		_webclient;			/** instanciate the Trender as a Web client */
+		TDR_WifiManager*    _wifiman;		
 		std::list<TDR_Device*>	_devices; 		/** list of the current supported devices */
 		std::list<TDR_Usage*>	_usages;		/** list of the current supported usages */
 		uint8_t             _uv;                /** usages vector */
 //		TDR_AccessPoint*	_ap;				/** TBD if needed */
 	public:
 		Trender();
-		Trender(TDR_WebServer* ws);
-		Trender(TDR_WebClient* wc);
+		// Trender(TDR_WebServer* ws);
+		// Trender(TDR_WebClient* wc);
+		Trender(TDR_WifiManager* wm);
 		Trender(TDR_Device* s);
 		Trender(TDR_Usage* u);
 		Trender(TDR_USAGES_t);
@@ -57,13 +60,15 @@ class Trender {
 		uint8_t	setup();
 		uint8_t run();
 
-		int setWebServer(TDR_WebServer *ws);
-		int setWebClient(TDR_WebClient *wc);
-		TDR_WebServer*  getWebServer();
-		TDR_WebClient*  getWebClient();
+		// int setWebServer(TDR_WebServer *ws);
+		// int setWebClient(TDR_WebClient *wc);
+		// TDR_WebServer*  getWebServer();
+		// TDR_WebClient*  getWebClient();
+		int setWifiManager(TDR_WifiManager *wm);
+		TDR_WifiManager*  getWifiManager();
 
-		int  loadWebPages();
-		int  serveWebRequest();
+		// int  loadWebPages();
+		// int  serveWebRequest();
 
 
 		uint8_t	setupDevices();
