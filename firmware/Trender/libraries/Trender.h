@@ -33,6 +33,8 @@
 #include "inc/TDR_WifiManager.h"
 #include "inc/TDR_Device.h"
 #include "inc/TDR_Usage.h"
+#include "inc/TDR_WebConnector.h"
+
 
 class Trender {
 	protected:
@@ -44,6 +46,7 @@ class Trender {
 		TDR_WifiManager*    _wifiman;		
 		std::list<TDR_Device*>	_devices; 		/** list of the current supported devices */
 		std::list<TDR_Usage*>	_usages;		/** list of the current supported usages */
+
 		uint8_t             _uv;                /** usages vector */
 //		TDR_AccessPoint*	_ap;				/** TBD if needed */
 	public:

@@ -83,7 +83,7 @@ Adafruit_NeoPixel* TDR_NeoPixel::getStrip() {
 int TDR_NeoPixel::setColor (uint32_t col) {
   uint8_t i=0;
   Serial.print(__FUNCTION__);
-  Serial.print(" :: ");
+  Serial.print(" :: 0x");
   Serial.println(col, HEX);
   //     Serial.println(pixels.getPixelColor(0),HEX);
   //     Serial.println(col,HEX);
@@ -111,6 +111,12 @@ int TDR_NeoPixel::gotoColor (uint32_t color, uint8_t wait) {
    uint8_t gc = cColor >> 8 & 0xFF;         /** current green */
    uint8_t bc = cColor & 0xFF;              /** current blue */
    int8_t  ri=1,gi=1,bi=1;                  /** inc/dec for each component */
+
+  Serial.print(__FUNCTION__);
+  Serial.print(" :: 0x");
+  Serial.print(color, HEX);
+  Serial.print(", from :: 0x");
+  Serial.println(cColor, HEX);
 
    if (color == cColor)
        return TDR_SUCCESS;

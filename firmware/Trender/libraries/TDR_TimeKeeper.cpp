@@ -46,7 +46,7 @@ TDR_TimeKeeper::TDR_TimeKeeper(TDR_NeoPixel* n) {
     _stopTime  = 0;
     _previousMode = STOPPED;
     _currentMode  = STOPPED;
-    _pstrip    = NULL;
+    _pstrip    = n;
 
     // config init
     _config.dur = 1;
@@ -57,7 +57,6 @@ TDR_TimeKeeper::TDR_TimeKeeper(TDR_NeoPixel* n) {
     _config.per[1] = 90;
     EEPROM.begin(512);
     readConfig();
-    _pstrip=n;
 }
 
 TDR_TimeKeeper::~TDR_TimeKeeper(){

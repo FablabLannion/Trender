@@ -22,6 +22,7 @@
 #include "trender.h"
 #include "inc/TDR_NeoPixel.h"
 #include "inc/TDR_TimeKeeper.h"
+#include "inc/TDR_Jenkins.h"
 
 // class Trender
 Trender::Trender() {
@@ -68,15 +69,15 @@ Trender::Trender(TDR_USAGES_t u=TDR_NOUSAGE)
 		// _webserver     =NULL;
 		// _webclient     =NULL;
 		_wifiman        =NULL;
-		_devices       ;
-		_usages        ;
+		// _devices       ;
+		// _usages        ;
 		_uv            =0;
 		err_msg(__func__,"warning: no usage selected !");
 		break;
 
 	case TDR_USG_TIMEKEEPER:
 		Serial.println("Trender:: Timekeeper usage selected!");
-		astrip = new TDR_NeoPixel(1,D2); 
+		astrip = new TDR_NeoPixel(8,D2); 
 		_thingSpeakMode   = TDR_FALSE;
 		// _webserver        = new TDR_WebServer();
 		// _webclient        = NULL;
@@ -87,7 +88,14 @@ Trender::Trender(TDR_USAGES_t u=TDR_NOUSAGE)
 		break;
 
 	case TDR_USG_JENKINS:
-		Serial.println("(not implemented yet)Trender:: Jenkins usage selected!");
+		Serial.println("Trender:: Jenkins usage selected!");
+		astrip = new TDR_NeoPixel(8,D2);
+		_thingSpeakMode   = TDR_TRUE;
+		_wifiman        = new TDR_WifiManager();
+		_devices.push_back(astrip);     
+		_usages.push_back(new TDR_Jenkins(astrip,new TDR_ThingSpeak()));
+
+		_uv               = _uv|(1<<TDR_USG_JENKINS);
 		break;
 
 	case TDR_USG_PAPERLESS:
@@ -107,12 +115,51 @@ Trender::~Trender(){
 }
 
 uint8_t Trender::run() {
+	uint8_t res=TDR_SUCCESS;
 
 	// if( (_uv&(1<<TDR_USG_TIMEKEEPER)) >0 ) {
 	// 	serveWebRequest();
 	// }
+	if( (_uv&(1<<TDR_USG_JENKINS)) >0 ) {
+		// ts4Jenkins(_wifiman->getTsChannelId());		
+		TDR_Jenkins* jenkins = (TDR_Jenkins*) findAllUsagesOf("Jenkins")->front();
+		if(jenkins==NULL) {
+			Serial.println("[ERROR] Usage Jenkins not instantiated !");
+			res= TDR_ERROR_1;
+		}
+		else {
+			jenkins->getThingSpeak()->setChannelID(_wifiman->getTsChannelId());
+			if( ! jenkins->getThingSpeak()->interact() == TDR_SUCCESS) {
+				err_msg(__FUNCTION__,":: something was wrong during ThingSpeak interaction !");
+				res=TDR_ERROR_2;
+			}
+			else {
+				// jenkins->getThingSpeak()->get_last() is now filled 
+				// with the last value we can transmit to Neopixels
+				switch(jenkins->get_last()) {
+					case '0':
+						jenkins->setStripColor(255,0,0); //red
+						break;
+					case '1': 
+						jenkins->setStripColor(255,128,0); //orange
+						break;
+					case '2':
+						jenkins->setStripColor(0,128,255); //blue
+						break;
+					default:
+						jenkins->setStripColor(255,255,255);
+						jenkins->setStripColor(0,0,0); 
+				}
 
-	return TDR_SUCCESS;
+			}
+
+		}
+
+
+	}
+
+
+	return res;
 }
 
 uint8_t Trender::setup() {
@@ -173,8 +220,9 @@ std::list<TDR_Usage*>* Trender::findAllUsagesOf(char* type) {
 	for(std::list<TDR_Usage*>::iterator it = _usages.begin(); it != _usages.end() ; it++) {
 		if((*it)==NULL) { Serial.print(__FUNCTION__); Serial.println(": [ERROR] :: (*it) null"); }
 		else {
-			Serial.print("current usage in the list: ");
+			Serial.print("current usage in the list (ptr,type): 0x");
 			Serial.print((int)(*it), HEX);
+			Serial.print(", ");
 			Serial.println((*it)->get_type());
 			if(strcmp((*it)->get_type(),type)==0) {
 				lusages->push_back(*it);
@@ -305,10 +353,11 @@ void Trender::showAllDevicesOf(char *type) {
 // 			return TDR_ERROR_2;
 // 		}
 // 	}
-// 	else {
-// 		return TDR_ERROR_1;
-// 	}
-// 	return TDR_SUCCESS;
+
+
+// int Trender::ts4Jenkins(char* channelId) {
+
+
 // }
 
 

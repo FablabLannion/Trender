@@ -20,10 +20,11 @@
  */
  
 #include "inc/TDR_WifiManager.h"
-
+bool shouldSaveConfig=false;
 // class TDR_WifiManager 
 TDR_WifiManager::TDR_WifiManager() {
 	_pwman = NULL;
+	strcpy(_tsChannelId,"");
 }
 
 TDR_WifiManager::~TDR_WifiManager(){
@@ -71,8 +72,30 @@ int  TDR_WifiManager::setup() {
 		_pwman = new WiFiManager();
 	}
 /*                                            id/name   placeholder/prompt     default length */
-	WiFiManagerParameter tsChannelIdParam = WiFiManagerParameter("channel","ThingSpeak Channel ID","123456",6);
+	WiFiManagerParameter tsChannelIdParam = WiFiManagerParameter("channel","ThingSpeak Channel ID",_tsChannelId,7);
 	_pwman->addParameter(&tsChannelIdParam);
+
+	//set config save notify callback
+	_pwman->setSaveConfigCallback(saveConfigCallback);
+	
+	// bool shouldSaveConfig=true;
+	// //save the custom parameters to FS
+	// if (shouldSaveConfig) {
+	// 	Serial.println("saving config");
+	// 	DynamicJsonBuffer jsonBuffer;
+	// 	JsonObject& json = jsonBuffer.createObject();
+	// 	json["tsChannelId"] = _tsChannelId;
+
+	// 	File configFile = SPIFFS.open("/config.json", "w");
+	// 	if (!configFile) {
+	// 		Serial.println("failed to open config file for writing");
+	// 	}
+
+	// 	json.printTo(Serial);
+	// 	json.printTo(configFile);
+	// 	configFile.close();
+	// 	//end save
+	// }
 
 	if( ! _pwman->autoConnect("TrenderWifiManager") ) {
 		Serial.println("failed to connect and hit timeout");
@@ -83,12 +106,14 @@ int  TDR_WifiManager::setup() {
 	}
 
 	//if you get here you have connected to the WiFi
-	Serial.println("connected...yeey :)");	
-
+	Serial.print("connected...yeey :)");	
+	Serial.print(tsChannelIdParam.getValue());
 	//read updated parameters
 	strcpy(_tsChannelId,tsChannelIdParam.getValue());
-
-	bool shouldSaveConfig=true;
+	Serial.print(" ; ");
+	Serial.println(_tsChannelId);
+	
+	//bool shouldSaveConfig=true;
 	//save the custom parameters to FS
 	if (shouldSaveConfig) {
 		Serial.println("saving config");
@@ -107,6 +132,7 @@ int  TDR_WifiManager::setup() {
 		//end save
 	}
 
+    Serial.println("");
 	Serial.println("local ip");
 	Serial.println(WiFi.localIP());
 
@@ -136,6 +162,11 @@ int  TDR_WifiManager::begin() {
   	return TDR_SUCCESS;
 }
 
+char* TDR_WifiManager::getTsChannelId() {
+	return _tsChannelId;
+}
+
+
 // char* TDR_WifiManager::getSSID() {
 // 	return _ssid;
 // }
@@ -149,6 +180,12 @@ int  TDR_WifiManager::begin() {
 // ESP8266WebServer* TDR_WifiManager::getServer(){
 // 	return _pwman;
 // }
+
+//callback notifying us of the need to save config
+void saveConfigCallback () {
+  Serial.println("Should save config");
+  shouldSaveConfig = true;
+}
 
 
 /* Admin functions for HTML WebServer */

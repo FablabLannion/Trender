@@ -1,6 +1,3 @@
-#ifndef __TRENDER_DEFS_H__
-#define __TRENDER_DEFS_H__
-
 /**
  *  This file is part of Trender.
  *
@@ -21,28 +18,54 @@
  *  Copyright 2016 Cédric Bernard cedric.bernard@galilabs.com
  *  Copyright 2016 Julien Jacques julien.jacques@galilabs.com
  */
-
-#define  HOSTNAME_PREFIX	"Trender"
-#define  TDR_VERSION 		"v2.0"
-
-#define  TDR_FALSE			0
-#define  TDR_TRUE			1
-typedef enum {
- 	TDR_SUCCESS=0,
- 	TDR_ERROR_1,
- 	TDR_ERROR_2,
- 	TDR_ERROR_3
-} TDR_RETURN_t;
-
-typedef enum {
- 	TDR_NOUSAGE=0,
- 	TDR_USG_TIMEKEEPER=1,
- 	TDR_USG_JENKINS=2,
- 	TDR_USG_PAPERLESS=4
-} TDR_USAGES_t;
-
-
-
-
  
-#endif
+#include "inc/TDR_Jenkins.h"
+
+// class TDR_Jenkins : public TDR_Usage 
+TDR_Jenkins::TDR_Jenkins(){
+	
+    _pstrip    = NULL;
+
+}
+TDR_Jenkins::TDR_Jenkins(TDR_NeoPixel* n, TDR_ThingSpeak* t) {
+    
+    _pstrip    = n;
+    _pTS       = t;
+}
+
+TDR_Jenkins::~TDR_Jenkins(){
+	
+}
+
+void TDR_Jenkins::setStrip(TDR_NeoPixel* s) {
+    _pstrip=s;
+}
+void TDR_Jenkins::setThingSpeak(TDR_ThingSpeak* t) {
+    _pTS=t;
+}
+
+TDR_NeoPixel* TDR_Jenkins::getStrip() {
+	return _pstrip;
+}
+TDR_ThingSpeak* TDR_Jenkins::getThingSpeak() {
+    return _pTS;
+}
+
+char* TDR_Jenkins::get_type() {
+    return _type;
+}
+
+unsigned char TDR_Jenkins::get_last() {
+    return _pTS->get_last_field1();
+}
+
+uint8_t  TDR_Jenkins::setStripColor(uint8_t R, uint8_t G, uint8_t B) {
+    uint32_t c = (R<<16) && (G<<8) && B;
+    _pstrip->gotoColor(c,300);
+
+    return TDR_SUCCESS;
+}
+
+
+
+// end of file

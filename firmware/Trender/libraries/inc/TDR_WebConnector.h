@@ -1,5 +1,5 @@
-#ifndef __TRENDER_DEFS_H__
-#define __TRENDER_DEFS_H__
+#ifndef __TDR_WEBCONNECTOR_H__
+#define __TDR_WEBCONNECTOR_H__
 
 /**
  *  This file is part of Trender.
@@ -22,27 +22,16 @@
  *  Copyright 2016 Julien Jacques julien.jacques@galilabs.com
  */
 
-#define  HOSTNAME_PREFIX	"Trender"
-#define  TDR_VERSION 		"v2.0"
+#include "Trender_defs.h"
 
-#define  TDR_FALSE			0
-#define  TDR_TRUE			1
-typedef enum {
- 	TDR_SUCCESS=0,
- 	TDR_ERROR_1,
- 	TDR_ERROR_2,
- 	TDR_ERROR_3
-} TDR_RETURN_t;
-
-typedef enum {
- 	TDR_NOUSAGE=0,
- 	TDR_USG_TIMEKEEPER=1,
- 	TDR_USG_JENKINS=2,
- 	TDR_USG_PAPERLESS=4
-} TDR_USAGES_t;
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
 
 
+class TDR_WebConnector {
+public:
+	TDR_WebConnector();
+	~TDR_WebConnector();
+};
 
-
- 
-#endif
+#endif 

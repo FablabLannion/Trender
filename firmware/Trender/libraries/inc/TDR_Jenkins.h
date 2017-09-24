@@ -1,5 +1,5 @@
-#ifndef __TRENDER_DEFS_H__
-#define __TRENDER_DEFS_H__
+#ifndef __TDR_JENKINS_H__
+#define __TDR_JENKINS_H__
 
 /**
  *  This file is part of Trender.
@@ -21,28 +21,36 @@
  *  Copyright 2016 Cédric Bernard cedric.bernard@galilabs.com
  *  Copyright 2016 Julien Jacques julien.jacques@galilabs.com
  */
-
-#define  HOSTNAME_PREFIX	"Trender"
-#define  TDR_VERSION 		"v2.0"
-
-#define  TDR_FALSE			0
-#define  TDR_TRUE			1
-typedef enum {
- 	TDR_SUCCESS=0,
- 	TDR_ERROR_1,
- 	TDR_ERROR_2,
- 	TDR_ERROR_3
-} TDR_RETURN_t;
-
-typedef enum {
- 	TDR_NOUSAGE=0,
- 	TDR_USG_TIMEKEEPER=1,
- 	TDR_USG_JENKINS=2,
- 	TDR_USG_PAPERLESS=4
-} TDR_USAGES_t;
-
-
-
-
  
+#include <Ticker.h>
+#include <EEPROM.h>
+
+#include "TDR_Usage.h"
+#include "TDR_ThingSpeak.h"
+#include "TDR_NeoPixel.h"
+
+
+class TDR_Jenkins : public TDR_Usage {
+protected:
+	char*           _type = "Jenkins";
+	TDR_ThingSpeak* _pTS;
+	TDR_NeoPixel*   _pstrip;
+
+public:
+
+public:
+	TDR_Jenkins();
+	TDR_Jenkins(TDR_NeoPixel* n, TDR_ThingSpeak* t);
+	~TDR_Jenkins();
+
+	char*           get_type();
+	unsigned char   get_last();
+	void            setStrip(TDR_NeoPixel* s);
+	void            setThingSpeak(TDR_ThingSpeak* t);
+	TDR_NeoPixel*   getStrip();
+	TDR_ThingSpeak* getThingSpeak();
+	uint8_t         setStripColor(uint8_t R, uint8_t G, uint8_t B);
+
+};
+
 #endif
