@@ -81,10 +81,15 @@ uint8_t TDR_ThingSpeak::interact() {
 		if (parseUserData(response, &userData)) {
 			printUserData(&userData);
 		}
-		_last_field1=userData.field1;
+		if(userData.TDR_mngt==9) {
+			_last_field1=9;
+		}
+		else {
+			_last_field1=userData.field1;
+		}
 	}
 	else {
-		_last_field1='9';
+		_last_field1=0;
 		return TDR_ERROR_1;
 	}
 
@@ -246,6 +251,9 @@ uint8_t TDR_ThingSpeak::parseUserData(char *content,TS_UserData* userData) {
 	// DynamicJsonBuffer jsonBuffer;
 
 	JsonObject& root = jsonBuffer.parseObject(content);
+	Serial.print(__FUNCTION__);
+	Serial.print(" :: content = ");
+	Serial.println(content);
 
 	if (!root.success()) {
 		Serial.println("JSON parsing failed!");
@@ -253,10 +261,11 @@ uint8_t TDR_ThingSpeak::parseUserData(char *content,TS_UserData* userData) {
 	}
 
 	// Here were copy the strings we're interested in
-	strcpy(userData->created_at, root["created_at"]);  
+	strcpy(userData->created_at, root["created_at"]);
 	userData->field1=atoi(root["field1"]);
-	// userData->field2=atoi(root["field2"]);
-	// userData->field3=atoi(root["field3"]);
+	userData->TDR_mngt=atoi(root["field8"]);
+	
+
 
 	return TDR_SUCCESS;
 }
@@ -275,10 +284,13 @@ void TDR_ThingSpeak::printUserData(TS_UserData* userData) {
 	Serial.println(userData->created_at);
 	Serial.print("Field1 = ");
 	Serial.println(userData->field1);
-	Serial.print("Field2 = ");
-	Serial.println(userData->field2);
-	Serial.print("Field3 = ");
-	Serial.println(userData->field3); 
+	// Serial.print("Field2 = ");
+	// Serial.println(userData->field2);
+	// Serial.print("Field3 = ");
+	// Serial.println(userData->field3); 
+	Serial.print("TDR_mngt = ");
+	Serial.println(userData->TDR_mngt);
+
 
 	//Check If this is a new sample
 	if (strcmp(_timestamp,userData->created_at)  != 0) {
@@ -297,8 +309,8 @@ void TDR_ThingSpeak::printUserData(TS_UserData* userData) {
 }
 
 unsigned char TDR_ThingSpeak::get_last_field1() {
-	Serial.print("enter ");
-	Serial.println(__FUNCTION__);
+	// Serial.print("enter ");
+	// Serial.println(__FUNCTION__);
 
 	return _last_field1;
 }

@@ -34,7 +34,8 @@ struct TS_UserData {
 	unsigned char field4;   
 	unsigned char field5;   
 	unsigned char field6;   
-	unsigned char field7;   
+	unsigned char field7;
+	unsigned char TDR_mngt;
 };
 
 #define  HTTP_TIMEOUT       20000  // max response time from server

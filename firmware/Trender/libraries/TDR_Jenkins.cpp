@@ -75,7 +75,7 @@ uint8_t  TDR_Jenkins::setStripColor(uint8_t R, uint8_t G, uint8_t B) {
     Serial.print(", => c=0x");
     Serial.println(c,HEX);
 
-    _pstrip->gotoColor(c,300);
+    _pstrip->gotoColor(c,50);
 
     return TDR_SUCCESS;
 }

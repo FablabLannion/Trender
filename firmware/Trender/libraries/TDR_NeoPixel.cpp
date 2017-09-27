@@ -66,6 +66,11 @@ uint8_t TDR_NeoPixel::setup() {
   _raincur=0;
  // _ptk->attach(0.05,tkTDR_NeoPixelColor,this);
 
+  this->gotoColor(0xFF0000,5);
+  this->gotoColor(0x00FF00,5);
+  this->gotoColor(0x0000FF,5);
+  this->gotoColor(0x000000,5);
+
 	return TDR_SUCCESS;
 }
 

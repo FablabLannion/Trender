@@ -136,6 +136,10 @@ uint8_t Trender::run() {
 			else {
 				// jenkins->getThingSpeak()->get_last() is now filled 
 				// with the last value we can transmit to Neopixels
+				Serial.print("Trender.cpp::");
+				Serial.print(__FUNCTION__);
+				Serial.print(" :: jenkins->get_last() = ");
+				Serial.print(jenkins->get_last());
 				switch(jenkins->get_last()) {
 					case 0:
 						jenkins->setStripColor(255,0,0); //red
