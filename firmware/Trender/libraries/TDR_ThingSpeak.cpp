@@ -56,6 +56,8 @@ uint8_t TDR_ThingSpeak::setChannelID(char* ch) {
 }
 
 uint8_t TDR_ThingSpeak::interact() {
+	Serial.print("enter ");
+	Serial.println(__FUNCTION__);
 
 	//------------------------------------ 
 	// Interaction with ThingSpeak  
@@ -94,7 +96,10 @@ uint8_t TDR_ThingSpeak::interact() {
 
 uint8_t TDR_ThingSpeak::sendRequest(char* channelID) {
 //  
-	if(_thingSpeakChannelID==0) {
+	Serial.print("enter ");
+	Serial.println(__FUNCTION__);
+
+	if(channelID==0) {
 		Serial.print(__FUNCTION__);
 		Serial.println("_thingSpeakChannelID >0");
 		return TDR_ERROR_1;
@@ -121,12 +126,17 @@ uint8_t TDR_ThingSpeak::sendRequest(char* channelID) {
 // ----------------------------------------
 bool  TDR_ThingSpeak::skipResponseHeaders() {
 //
+	Serial.print("enter ");
+	Serial.println(__FUNCTION__);
+
 	// HTTP headers end with an empty line
 	char endOfHeaders[] = "\r\n\r\n";
 
 	_client->setTimeout(HTTP_TIMEOUT);
 	bool ok = _client->find(endOfHeaders);
-
+	Serial.print(__FUNCTION__);
+	Serial.print(" :: _client->find() returns ");
+	Serial.println(ok);
 	if (!ok) {
 		Serial.println("No response or invalid response!");
 
@@ -158,11 +168,18 @@ bool  TDR_ThingSpeak::skipResponseHeaders() {
 //-------------------------------------------------------
 bool TDR_ThingSpeak::skipThingSpeakHeader() {
 //
+
+	Serial.print("enter ");
+	Serial.println(__FUNCTION__);
+
 	// Flush first line to go to align to json body
 	char endOfHeaders[] = "\r\n";
 
 	_client->setTimeout(HTTP_TIMEOUT);
 	bool ok = _client->find(endOfHeaders);
+	Serial.print(__FUNCTION__);
+	Serial.print(" :: _client->find() returns ");
+	Serial.println(ok);
 
 	if (!ok) {
 		Serial.println("ThingSpeak Header not found :-(");
@@ -195,8 +212,14 @@ bool TDR_ThingSpeak::skipThingSpeakHeader() {
 //-------------------------------------------------------
 uint8_t TDR_ThingSpeak::readResponseContent(char* content, size_t maxSize) {
 //
+	Serial.print("enter ");
+	Serial.println(__FUNCTION__);
+
 	size_t length = _client->readBytes(content, maxSize);
-	content[length] = 0;
+	content[length] = '\0';
+	Serial.print(__FUNCTION__);
+	Serial.print(" :: length=");
+	Serial.println(length);
 	Serial.println(content);
 	return TDR_SUCCESS;
 }
@@ -205,6 +228,9 @@ uint8_t TDR_ThingSpeak::readResponseContent(char* content, size_t maxSize) {
 //-------------------------------------------------------
 uint8_t TDR_ThingSpeak::parseUserData(char *content,TS_UserData* userData) {
 //
+	Serial.print("enter ");
+	Serial.println(__FUNCTION__);
+
 	// Compute optimal size of the JSON buffer according to what we need to parse.
 	// This is only required if you use StaticJsonBuffer.
 	const size_t BUFFER_SIZE = JSON_OBJECT_SIZE(10);     // the root object has 10 elements
@@ -229,8 +255,8 @@ uint8_t TDR_ThingSpeak::parseUserData(char *content,TS_UserData* userData) {
 	// Here were copy the strings we're interested in
 	strcpy(userData->created_at, root["created_at"]);  
 	userData->field1=atoi(root["field1"]);
-	userData->field2=atoi(root["field2"]);
-	userData->field3=atoi(root["field3"]);
+	// userData->field2=atoi(root["field2"]);
+	// userData->field3=atoi(root["field3"]);
 
 	return TDR_SUCCESS;
 }
@@ -239,6 +265,9 @@ uint8_t TDR_ThingSpeak::parseUserData(char *content,TS_UserData* userData) {
 //-------------------------------------------------------
 void TDR_ThingSpeak::printUserData(TS_UserData* userData) {
 //
+	Serial.print("enter ");
+	Serial.println(__FUNCTION__);
+
 	Serial.print("old _timestamp: ");
 	Serial.println(_timestamp);
 
@@ -268,6 +297,9 @@ void TDR_ThingSpeak::printUserData(TS_UserData* userData) {
 }
 
 unsigned char TDR_ThingSpeak::get_last_field1() {
+	Serial.print("enter ");
+	Serial.println(__FUNCTION__);
+
 	return _last_field1;
 }
 

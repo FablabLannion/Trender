@@ -82,9 +82,9 @@ Adafruit_NeoPixel* TDR_NeoPixel::getStrip() {
  */
 int TDR_NeoPixel::setColor (uint32_t col) {
   uint8_t i=0;
-  Serial.print(__FUNCTION__);
-  Serial.print(" :: 0x");
-  Serial.println(col, HEX);
+  // Serial.print(__FUNCTION__);
+  // Serial.print(" :: 0x");
+  // Serial.println(col, HEX);
   //     Serial.println(pixels.getPixelColor(0),HEX);
   //     Serial.println(col,HEX);
   for (i = 0; i < _no_leds; i++) {

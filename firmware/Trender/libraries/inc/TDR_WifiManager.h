@@ -42,7 +42,7 @@ class TDR_WifiManager {
 protected:
 	char              _ssid[13];
 	uint8_t			  _mac[6];
-	char			  _tsChannelId[7];
+	char			  _tsChannelId[16];
 	WiFiManager*      _pwman; 
 	//WifiManagerParameter* _ptsChannelIdParam;
 	// ESP8266WebServer* _pserver;
@@ -55,6 +55,7 @@ public:
 
 	int   setup();
 	int   begin();
+	int   backToConfigure();
 	// int   serveWebRequest();
 
 	char* getTsChannelId();

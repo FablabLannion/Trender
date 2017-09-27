@@ -56,11 +56,25 @@ char* TDR_Jenkins::get_type() {
 }
 
 unsigned char TDR_Jenkins::get_last() {
+    Serial.print(__FUNCTION__);
+    Serial.print(" field1=");
+    Serial.println(_pTS->get_last_field1());
     return _pTS->get_last_field1();
 }
 
 uint8_t  TDR_Jenkins::setStripColor(uint8_t R, uint8_t G, uint8_t B) {
-    uint32_t c = (R<<16) && (G<<8) && B;
+    Serial.print(__FUNCTION__);
+    Serial.print(" R=0x");
+    Serial.print(R,HEX);
+    Serial.print(", G=0x");
+    Serial.print(G,HEX);
+    Serial.print(", B=0x");
+    Serial.print(B,HEX);
+    
+    uint32_t c = (R<<16) + (G<<8) + B;
+    Serial.print(", => c=0x");
+    Serial.println(c,HEX);
+
     _pstrip->gotoColor(c,300);
 
     return TDR_SUCCESS;

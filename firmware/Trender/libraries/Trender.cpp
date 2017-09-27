@@ -137,14 +137,23 @@ uint8_t Trender::run() {
 				// jenkins->getThingSpeak()->get_last() is now filled 
 				// with the last value we can transmit to Neopixels
 				switch(jenkins->get_last()) {
-					case '0':
+					case 0:
 						jenkins->setStripColor(255,0,0); //red
 						break;
-					case '1': 
+					case 1: 
 						jenkins->setStripColor(255,128,0); //orange
 						break;
-					case '2':
+					case 2:
 						jenkins->setStripColor(0,128,255); //blue
+						break;
+					case 9:
+						Serial.println("Reconfiguration request !!!");
+						_wifiman->backToConfigure();
+						Serial.println("Bye bye !!!");
+						delay(3000);
+    					//reset and try again, or maybe put it to deep sleep
+    					ESP.reset();
+						delay(5000);
 						break;
 					default:
 						jenkins->setStripColor(255,255,255);

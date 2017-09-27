@@ -72,7 +72,7 @@ int  TDR_WifiManager::setup() {
 		_pwman = new WiFiManager();
 	}
 /*                                            id/name   placeholder/prompt     default length */
-	WiFiManagerParameter tsChannelIdParam = WiFiManagerParameter("channel","ThingSpeak Channel ID",_tsChannelId,7);
+	WiFiManagerParameter tsChannelIdParam = WiFiManagerParameter("channel","ThingSpeak Channel ID",_tsChannelId,16);
 	_pwman->addParameter(&tsChannelIdParam);
 
 	//set config save notify callback
@@ -150,6 +150,12 @@ int  TDR_WifiManager::setup() {
 */
 	/* load webpages in the Trender instance               */
 	/* then call ::begin() (in the same Trender instance)  */
+}
+
+
+int  TDR_WifiManager::backToConfigure() {
+	_pwman->resetSettings();
+	return TDR_SUCCESS;
 }
 
 int  TDR_WifiManager::begin() {
