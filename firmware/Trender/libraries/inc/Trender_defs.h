@@ -23,7 +23,7 @@
  */
 
 #define  HOSTNAME_PREFIX	"Trender"
-#define  TDR_VERSION 		"v2.0"
+#define  TDR_VERSION 		"v2.0.1"
 
 #define  TDR_FALSE			0
 #define  TDR_TRUE			1
