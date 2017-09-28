@@ -71,6 +71,9 @@ int  TDR_WifiManager::setup() {
 	if(_pwman==NULL) {
 		_pwman = new WiFiManager();
 	}
+
+	WiFiManagerParameter custom_text("<p>ThingSpeak Channel ID:</p>");
+	_pwman->addParameter(&custom_text);
 /*                                            id/name   placeholder/prompt     default length */
 	WiFiManagerParameter tsChannelIdParam = WiFiManagerParameter("channel","ThingSpeak Channel ID",_tsChannelId,16);
 	_pwman->addParameter(&tsChannelIdParam);
@@ -96,8 +99,10 @@ int  TDR_WifiManager::setup() {
 	// 	configFile.close();
 	// 	//end save
 	// }
+	WiFi.macAddress(_mac);
+	snprintf (_ssid, 13, "Trender-%02X%02X", _mac[4], _mac[5]);
 
-	if( ! _pwman->autoConnect("TrenderWifiManager") ) {
+	if( ! _pwman->autoConnect(_ssid) ) {
 		Serial.println("failed to connect and hit timeout");
     	delay(3000);
     	//reset and try again, or maybe put it to deep sleep
@@ -107,16 +112,16 @@ int  TDR_WifiManager::setup() {
 
 	//if you get here you have connected to the WiFi
 	Serial.print("connected...yeey :)");	
-	Serial.print(tsChannelIdParam.getValue());
+	///Serial.print(tsChannelIdParam.getValue());
 	//read updated parameters
 	strcpy(_tsChannelId,tsChannelIdParam.getValue());
-	Serial.print(" ; ");
-	Serial.println(_tsChannelId);
+	///Serial.print(" ; ");
+	///Serial.println(_tsChannelId);
 	
 	//bool shouldSaveConfig=true;
 	//save the custom parameters to FS
 	if (shouldSaveConfig) {
-		Serial.println("saving config");
+		///Serial.println("saving config");
 		DynamicJsonBuffer jsonBuffer;
 		JsonObject& json = jsonBuffer.createObject();
 		json["tsChannelId"] = _tsChannelId;
@@ -126,7 +131,7 @@ int  TDR_WifiManager::setup() {
 			Serial.println("failed to open config file for writing");
 		}
 
-		json.printTo(Serial);
+		///json.printTo(Serial);
 		json.printTo(configFile);
 		configFile.close();
 		//end save

@@ -116,6 +116,7 @@ Trender::~Trender(){
 
 uint8_t Trender::run() {
 	uint8_t res=TDR_SUCCESS;
+	uint8_t color[3];
 
 	// if( (_uv&(1<<TDR_USG_TIMEKEEPER)) >0 ) {
 	// 	serveWebRequest();
@@ -136,28 +137,29 @@ uint8_t Trender::run() {
 			else {
 				// jenkins->getThingSpeak()->get_last() is now filled 
 				// with the last value we can transmit to Neopixels
-				Serial.print("Trender.cpp::");
-				Serial.print(__FUNCTION__);
-				Serial.print(" :: jenkins->get_last() = ");
-				Serial.print(jenkins->get_last());
-				switch(jenkins->get_last()) {
+	
+				if(jenkins->get_last_TDR_mngt()==9){
+					Serial.println("Reconfiguration request !!!");
+					_wifiman->backToConfigure();
+					Serial.println("Bye bye !!!");
+					delay(3000);
+					//reset and try again, or maybe put it to deep sleep
+					ESP.reset();
+					delay(5000);
+				}
+
+				switch(jenkins->get_last_code()) {
 					case 0:
-						jenkins->setStripColor(255,0,0); //red
+						jenkins->color1(color);
+						jenkins->setStripColor(color[0],color[1],color[2]);
 						break;
 					case 1: 
-						jenkins->setStripColor(255,128,0); //orange
+						jenkins->color2(color);
+						jenkins->setStripColor(color[0],color[1],color[2]);
 						break;
 					case 2:
-						jenkins->setStripColor(0,128,255); //blue
-						break;
-					case 9:
-						Serial.println("Reconfiguration request !!!");
-						_wifiman->backToConfigure();
-						Serial.println("Bye bye !!!");
-						delay(3000);
-    					//reset and try again, or maybe put it to deep sleep
-    					ESP.reset();
-						delay(5000);
+						jenkins->color3(color);
+						jenkins->setStripColor(color[0],color[1],color[2]);
 						break;
 					default:
 						jenkins->setStripColor(255,255,255);
@@ -228,7 +230,7 @@ std::list<TDR_Device*>* Trender::findAllDevicesOf(char* type) {
 std::list<TDR_Usage*>* Trender::findAllUsagesOf(char* type) {
 	if(&_usages==NULL) { Serial.print(__FUNCTION__); Serial.println(": [ERROR] :: _usages should be instantiated"); return NULL; }
 	
-	Serial.println(__FUNCTION__);
+	///Serial.println(__FUNCTION__);
 	std::list<TDR_Usage*> *lusages=new std::list<TDR_Usage*>();
 	for(std::list<TDR_Usage*>::iterator it = _usages.begin(); it != _usages.end() ; it++) {
 		if((*it)==NULL) { Serial.print(__FUNCTION__); Serial.println(": [ERROR] :: (*it) null"); }
@@ -242,7 +244,7 @@ std::list<TDR_Usage*>* Trender::findAllUsagesOf(char* type) {
 			}
 		}
 	}
-	Serial.print("lusages size="); Serial.println(lusages->size());
+	///Serial.print("lusages size="); Serial.println(lusages->size());
 	return lusages;
 }
 

@@ -44,12 +44,18 @@ public:
 	~TDR_Jenkins();
 
 	char*           get_type();
-	unsigned char   get_last();
+	unsigned char   get_last_code();
+	unsigned char   get_last_TDR_mngt();
 	void            setStrip(TDR_NeoPixel* s);
 	void            setThingSpeak(TDR_ThingSpeak* t);
 	TDR_NeoPixel*   getStrip();
 	TDR_ThingSpeak* getThingSpeak();
 	uint8_t         setStripColor(uint8_t R, uint8_t G, uint8_t B);
+
+	uint8_t color(uint8_t *,unsigned int);
+	uint8_t color1(uint8_t *);
+	uint8_t color2(uint8_t *);
+	uint8_t color3(uint8_t *);
 
 };
 

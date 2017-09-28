@@ -28,10 +28,10 @@
 struct TS_UserData {
 	char created_at[128]; 
 	unsigned long entry_id;
-	unsigned char field1; 
-	unsigned char field2; 
-	unsigned char field3;  
-	unsigned char field4;   
+	unsigned char code;
+	unsigned int  color1; 
+	unsigned int  color2; 
+	unsigned int  color3;  
 	unsigned char field5;   
 	unsigned char field6;   
 	unsigned char field7;
@@ -56,7 +56,11 @@ protected:
 	unsigned char  _newSampleDetected=0;
 	char*          _timestamp;
 
-	unsigned char   _last_field1;
+	unsigned char   _last_code;
+	unsigned int    _last_color1;
+	unsigned int    _last_color2;
+	unsigned int    _last_color3;
+	unsigned char   _last_TDR_mngt;
 
 public:
 	TDR_ThingSpeak();
@@ -74,7 +78,13 @@ public:
 	uint8_t parseUserData(char *content,TS_UserData* userData);
 	void    printUserData(TS_UserData* userData);
 
-	unsigned char get_last_field1();
+	unsigned int  json_getColor(const char*);
+
+	unsigned char get_last_code();
+	unsigned int  get_color1();
+	unsigned int  get_color2();
+	unsigned int  get_color3();
+	unsigned char get_last_TDR_mngt();
 };
 
 #endif 

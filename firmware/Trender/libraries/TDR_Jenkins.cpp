@@ -55,12 +55,45 @@ char* TDR_Jenkins::get_type() {
     return _type;
 }
 
-unsigned char TDR_Jenkins::get_last() {
+unsigned char TDR_Jenkins::get_last_code() {
     Serial.print(__FUNCTION__);
-    Serial.print(" field1=");
-    Serial.println(_pTS->get_last_field1());
-    return _pTS->get_last_field1();
+    Serial.print(" code=");
+    Serial.println(_pTS->get_last_code());
+    return _pTS->get_last_code();
 }
+unsigned char TDR_Jenkins::get_last_TDR_mngt() {
+    Serial.print(__FUNCTION__);
+    Serial.print(" TDR_mngt=");
+    Serial.println(_pTS->get_last_TDR_mngt());
+    return _pTS->get_last_TDR_mngt();
+}
+
+uint8_t TDR_Jenkins::color(uint8_t *a,unsigned int c) {
+    a[0] = (c>>16) & 0xFF;
+    a[1] = (c>>8)  & 0xFF;
+    a[2] =  c      & 0xFF;
+    /// Serial.print("TDR_Jenkins::");
+    /// Serial.print(__FUNCTION__);
+    /// Serial.print(" : c=0x");
+    /// Serial.print(c,HEX);
+    /// Serial.print(" : [0]=0x");
+    /// Serial.print(a[0],HEX);
+    /// Serial.print(" : [1]=0x");
+    /// Serial.print(a[1],HEX);
+    /// Serial.print(" : [2]=0x");
+    /// Serial.println(a[2],HEX);
+    return TDR_SUCCESS;
+}
+uint8_t TDR_Jenkins::color1(uint8_t *a) {
+    return color(a, _pTS->get_color1());
+}
+uint8_t TDR_Jenkins::color2(uint8_t *a) {
+    return color(a, _pTS->get_color2());  
+}
+uint8_t TDR_Jenkins::color3(uint8_t *a) {
+    return color(a, _pTS->get_color3());
+}
+
 
 uint8_t  TDR_Jenkins::setStripColor(uint8_t R, uint8_t G, uint8_t B) {
     Serial.print(__FUNCTION__);
