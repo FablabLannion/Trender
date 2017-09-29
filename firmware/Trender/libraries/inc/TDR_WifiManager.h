@@ -44,6 +44,7 @@ protected:
 	uint8_t			  _mac[6];
 	char			  _tsChannelId[16];
 	WiFiManager*      _pwman; 
+	char              _timeKeeperMode[2];
 	//WifiManagerParameter* _ptsChannelIdParam;
 	// ESP8266WebServer* _pserver;
 	// DNSServer*        _pdns;

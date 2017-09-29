@@ -66,7 +66,7 @@ Trender::Trender(TDR_USAGES_t u=TDR_NOUSAGE)
 	case TDR_NOUSAGE:
 		/*nothing*/
 		_thingSpeakMode=TDR_FALSE;
-		// _webserver     =NULL;
+		_webserver     =NULL;
 		// _webclient     =NULL;
 		_wifiman        =NULL;
 		// _devices       ;
@@ -79,27 +79,23 @@ Trender::Trender(TDR_USAGES_t u=TDR_NOUSAGE)
 		Serial.println("Trender:: Timekeeper usage selected!");
 		astrip = new TDR_NeoPixel(8,D2); 
 		_thingSpeakMode   = TDR_FALSE;
-		// _webserver        = new TDR_WebServer();
+		_webserver        = new TDR_WebServer();
 		// _webclient        = NULL;
-		_wifiman        = new TDR_WifiManager();
+		//_wifiman        = new TDR_WifiManager();
 		_devices.push_back(astrip);     
 		_usages.push_back(new TDR_TimeKeeper(astrip));
 		_uv               = _uv|(1<<TDR_USG_TIMEKEEPER);
 		break;
 
-	case TDR_USG_JENKINS:
-		Serial.println("Trender:: Jenkins usage selected!");
+	case TDR_USG_THINGSPEAK:
+		Serial.println("Trender:: ThingSpeak usage selected!");
 		astrip = new TDR_NeoPixel(8,D2);
 		_thingSpeakMode   = TDR_TRUE;
 		_wifiman        = new TDR_WifiManager();
 		_devices.push_back(astrip);     
 		_usages.push_back(new TDR_Jenkins(astrip,new TDR_ThingSpeak()));
 
-		_uv               = _uv|(1<<TDR_USG_JENKINS);
-		break;
-
-	case TDR_USG_PAPERLESS:
-		Serial.println("(not implemented yet)Trender:: Paperless usage selected!");
+		_uv               = _uv|(1<<TDR_USG_THINGSPEAK);
 		break;
 
 	default:
@@ -118,10 +114,10 @@ uint8_t Trender::run() {
 	uint8_t res=TDR_SUCCESS;
 	uint8_t color[3];
 
-	// if( (_uv&(1<<TDR_USG_TIMEKEEPER)) >0 ) {
-	// 	serveWebRequest();
-	// }
-	if( (_uv&(1<<TDR_USG_JENKINS)) >0 ) {
+	if( (_uv&(1<<TDR_USG_TIMEKEEPER)) >0 ) {
+		serveWebRequest();
+	}
+	if( (_uv&(1<<TDR_USG_THINGSPEAK)) >0 ) {
 		// ts4Jenkins(_wifiman->getTsChannelId());		
 		TDR_Jenkins* jenkins = (TDR_Jenkins*) findAllUsagesOf("Jenkins")->front();
 		if(jenkins==NULL) {
@@ -179,12 +175,34 @@ uint8_t Trender::run() {
 
 uint8_t Trender::setup() {
 	if(_wifiman!=NULL) {
-		_wifiman->setup();
+		if(_wifiman->setup()==TDR_ERROR_3) {
+			Serial.println("Trender:: Timekeeper usage selected!");
+
+			_thingSpeakMode   = TDR_FALSE;
+			_wifiman->backToConfigure();
+			delete _wifiman;
+			
+			std::list<TDR_Usage*>* lusages =   findAllUsagesOf("Jenkins");
+			TDR_Jenkins* j=(TDR_Jenkins*) (lusages->front());
+			delete j;
+			_usages.pop_front();
+
+			_webserver        = new TDR_WebServer();
+			// _webclient        = NULL;
+			
+			//_wifiman        = new TDR_WifiManager();
+			//_devices.push_back(astrip);   
+			std::list<TDR_Device*>* ldevices =   findAllDevicesOf("neopixel");
+			TDR_NeoPixel* astrip = (TDR_NeoPixel*) (ldevices->front());
+			_usages.push_back(new TDR_TimeKeeper(astrip));
+			_uv               = 0;
+			_uv               = _uv|(1<<TDR_USG_TIMEKEEPER);
+		}
 	}
-	// if(_webserver!=NULL) {
-	// 	_webserver->setup();
-	// 	loadWebPages();
-	// }
+	if(_webserver!=NULL) {
+		_webserver->setup();
+		loadWebPages();
+	}
 	if(_devices.size()>0) {
 		setupDevices();
 	}
@@ -248,10 +266,10 @@ std::list<TDR_Usage*>* Trender::findAllUsagesOf(char* type) {
 	return lusages;
 }
 
-// int Trender::setWebServer(TDR_WebServer *ws){
-// 	_webserver=ws;
-// 	return TDR_SUCCESS;
-// }
+int Trender::setWebServer(TDR_WebServer *ws){
+	_webserver=ws;
+	return TDR_SUCCESS;
+}
 
 // int Trender::setWebClient(TDR_WebClient *wc){
 // 	_webclient=wc;
@@ -262,9 +280,9 @@ int Trender::setWifiManager(TDR_WifiManager *wm){
 	return TDR_SUCCESS;
 }
 
-// TDR_WebServer*  Trender::getWebServer() {
-// 	return _webserver;
-// }
+TDR_WebServer*  Trender::getWebServer() {
+	return _webserver;
+}
 // TDR_WebClient*  Trender::getWebClient() {
 // 	return _webclient;
 // }
@@ -318,62 +336,57 @@ void Trender::showAllDevicesOf(char *type) {
 	l->std::list<TDR_Device*>::~list();
 }
 
-// int  Trender::loadWebPages() {
-// 	ESP8266WebServer*        pserver=_webserver->getServer();
-// 	std::list<TDR_Device*>*  lneopix=(std::list<TDR_Device*>*) findAllDevicesOf("neopixel");
-// 	std::list<TDR_Device*>::iterator it=lneopix->begin();
-// 	TDR_NeoPixel*            pneopix=(TDR_NeoPixel*)(*it);
-// 	std::list<TDR_Usage*>*   ltimekeeper=(std::list<TDR_Usage*>*) findAllUsagesOf("timekeeper");
-// 	std::list<TDR_Usage*>::iterator itk=ltimekeeper->begin();
-// 	TDR_TimeKeeper*          ptimekeeper=(TDR_TimeKeeper*)(*itk);
+int  Trender::loadWebPages() {
+	ESP8266WebServer*        pserver=_webserver->getServer();
+	std::list<TDR_Device*>*  lneopix=(std::list<TDR_Device*>*) findAllDevicesOf("neopixel");
+	std::list<TDR_Device*>::iterator it=lneopix->begin();
+	TDR_NeoPixel*            pneopix=(TDR_NeoPixel*)(*it);
+	std::list<TDR_Usage*>*   ltimekeeper=(std::list<TDR_Usage*>*) findAllUsagesOf("timekeeper");
+	std::list<TDR_Usage*>::iterator itk=ltimekeeper->begin();
+	TDR_TimeKeeper*          ptimekeeper=(TDR_TimeKeeper*)(*itk);
 
-// 	Serial.println(__FUNCTION__);
+	Serial.println(__FUNCTION__);
 
-// 	pserver->on ( "/", [pserver]() { Serial.println("/.html"); pserver->send ( 200, "text/html", PAGE_AdminMainPage );   }  );
+	pserver->on ( "/", [pserver]() { Serial.println("/.html"); pserver->send ( 200, "text/html", PAGE_AdminMainPage );   }  );
 
-//   	pserver->on ( "/admin", [pserver]() { Serial.println("admin.html"); pserver->send ( 200, "text/html", PAGE_AdminMainPage );   }  );
-//   	pserver->on ( "/admin/infovalues", [this]() { send_information_values_html(this->getWebServer()); } );
-// /*
-//   	pserver->on ( "/admin/infothingspeak", send_thingspeak_values_html);
-// */  
- // 	pserver->on ( "/info", [pserver]() { Serial.println("info.html"); pserver->send ( 200, "text/html", PAGE_Information );   }  );
-	// pserver->on ( "/color", [this,pneopix]() { processColor(this->getWebServer(),pneopix); } );
-	// pserver->on ( "/color/values", [this,pneopix]() { sendColorData(this->getWebServer(),pneopix); } );
-	// if( (_uv&(1<<TDR_USG_TIMEKEEPER)) >0 ) {
- // 		pserver->on ( "/config", [this,ptimekeeper,pserver]() { processConfig(this->getWebServer(),ptimekeeper); /* pserver->send ( 200, "text/html", PAGE_Config); */ writeConfig(ptimekeeper);});
-	// 	pserver->on ( "/config/values", [this,ptimekeeper]() { sendConfigData(this->getWebServer(),ptimekeeper);});
-	// }
-// /*
-  	// pserver->on ( "/thingspeak", []() { Serial.println("thingspeak.html"); pserver->send ( 200, "text/html", PAGE_ThingSpeak );   }  );  
-  	// pserver->on ( "/config/values", []() { Serial.println("Disable ThingSpeak timeout mode"); thingSpeakMode=0;tkt.detach();sendConfigData();});
-//*/
-//   	pserver->on ( "/style.css", [pserver]() { Serial.println("style.css"); pserver->send ( 200, "text/plain", PAGE_Style_css );  } );
-//   	pserver->on ( "/microajax.js", [pserver]() { Serial.println("microajax.js"); pserver->send ( 200, "text/plain", PAGE_microajax_js );  } );
-// 	if( (_uv&(1<<TDR_USG_TIMEKEEPER)) >0 ) {
-// 	  	pserver->on ( "/start", [pserver,ptimekeeper]() { Serial.println("start"); ptimekeeper->start(); pserver->send ( 200, "text/html", PAGE_AdminMainPage ); } );
-//   		pserver->on ( "/stop", [pserver,ptimekeeper]() { Serial.println("stop"); ptimekeeper->stop(); pserver->send ( 200, "text/html", PAGE_AdminMainPage ); } );
-// 	}
-//   	unsigned int favicon_ico_len = 1406; // here due to multiple declarations issue. TODO: move it in a class
-//   	pserver->on ( "/favicon.ico", [pserver,favicon_ico_len]() { Serial.println("favicon"); pserver->send_P(200, "image/x-icon", favicon_ico, favicon_ico_len); } ); 
+  	pserver->on ( "/admin", [pserver]() { Serial.println("admin.html"); pserver->send ( 200, "text/html", PAGE_AdminMainPage );   }  );
+  	pserver->on ( "/admin/infovalues", [this]() { send_information_values_html(this->getWebServer()); } );
+/*
+  	pserver->on ( "/admin/infothingspeak", send_thingspeak_values_html);
+*/  
+ 	pserver->on ( "/info", [pserver]() { Serial.println("info.html"); pserver->send ( 200, "text/html", PAGE_Information );   }  );
+	pserver->on ( "/color", [this,pneopix]() { processColor(this->getWebServer(),pneopix); } );
+	pserver->on ( "/color/values", [this,pneopix]() { sendColorData(this->getWebServer(),pneopix); } );
+	if( (_uv&(1<<TDR_USG_TIMEKEEPER)) >0 ) {
+ 		pserver->on ( "/config", [this,ptimekeeper,pserver]() { processConfig(this->getWebServer(),ptimekeeper); /* pserver->send ( 200, "text/html", PAGE_Config); */ writeConfig(ptimekeeper);});
+		pserver->on ( "/config/values", [this,ptimekeeper]() { sendConfigData(this->getWebServer(),ptimekeeper);});
+	}
+/*
+  	pserver->on ( "/thingspeak", []() { Serial.println("thingspeak.html"); pserver->send ( 200, "text/html", PAGE_ThingSpeak );   }  );  
+  	pserver->on ( "/config/values", []() { Serial.println("Disable ThingSpeak timeout mode"); thingSpeakMode=0;tkt.detach();sendConfigData();});
+*/
+  	pserver->on ( "/style.css", [pserver]() { Serial.println("style.css"); pserver->send ( 200, "text/plain", PAGE_Style_css );  } );
+  	pserver->on ( "/microajax.js", [pserver]() { Serial.println("microajax.js"); pserver->send ( 200, "text/plain", PAGE_microajax_js );  } );
+	if( (_uv&(1<<TDR_USG_TIMEKEEPER)) >0 ) {
+	  	pserver->on ( "/start", [pserver,ptimekeeper]() { Serial.println("start"); ptimekeeper->start(); pserver->send ( 200, "text/html", PAGE_AdminMainPage ); } );
+  		pserver->on ( "/stop", [pserver,ptimekeeper]() { Serial.println("stop"); ptimekeeper->stop(); pserver->send ( 200, "text/html", PAGE_AdminMainPage ); } );
+	}
+  	unsigned int favicon_ico_len = 1406; // here due to multiple declarations issue. TODO: move it in a class
+  	pserver->on ( "/favicon.ico", [pserver,favicon_ico_len]() { Serial.println("favicon"); pserver->send_P(200, "image/x-icon", favicon_ico, favicon_ico_len); } ); 
 
-//   	pserver->onNotFound ( [pserver]() { Serial.println("Page Not Found"); pserver->send ( 404, "text/html", "Page not Found" );   }  );
+  	pserver->onNotFound ( [pserver]() { Serial.println("Page Not Found"); pserver->send ( 404, "text/html", "Page not Found" );   }  );
 
-//   	pserver->begin();
+  	pserver->begin();
 
-// }
+}
 
-// int   Trender::serveWebRequest() {
-// 	if(_webserver!=NULL) {
-// 		if(_webserver->serveWebRequest()!=TDR_SUCCESS) {
-// 			return TDR_ERROR_2;
-// 		}
-// 	}
-
-
-// int Trender::ts4Jenkins(char* channelId) {
-
-
-// }
+int   Trender::serveWebRequest() {
+	if(_webserver!=NULL) {
+		if(_webserver->serveWebRequest()!=TDR_SUCCESS) {
+			return TDR_ERROR_2;
+		}
+	}
+}
 
 
 

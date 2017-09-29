@@ -23,7 +23,7 @@
  */
 
 #define  HOSTNAME_PREFIX	"Trender"
-#define  TDR_VERSION 		"v2.0.1"
+#define  TDR_VERSION 		"v2.0.2"
 
 #define  TDR_FALSE			0
 #define  TDR_TRUE			1
@@ -37,8 +37,7 @@ typedef enum {
 typedef enum {
  	TDR_NOUSAGE=0,
  	TDR_USG_TIMEKEEPER=1,
- 	TDR_USG_JENKINS=2,
- 	TDR_USG_PAPERLESS=4
+ 	TDR_USG_THINGSPEAK=2,
 } TDR_USAGES_t;
 
 

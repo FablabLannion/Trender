@@ -47,7 +47,7 @@ TDR_ThingSpeak::TDR_ThingSpeak(char* channelID)
 }	
 
 TDR_ThingSpeak::~TDR_ThingSpeak(){
-
+	delete _client;
 }
 
 char* TDR_ThingSpeak::getChannelID() {

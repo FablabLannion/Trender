@@ -51,7 +51,7 @@ int  TDR_WebServer::setup() {
 int  TDR_WebServer::begin() {
 	// if DNSServer is started with "*" for domain name, it will reply with
   	// provided IP to all DNS request
-  	_pdns->start ( DNS_PORT, "*", WiFi.softAPIP() );
+  	_pdns->start ( TDR_DNS_PORT, "*", WiFi.softAPIP() );
   	// webserver
 	_pserver->begin();
   	Serial.println( "HTTP server started" );

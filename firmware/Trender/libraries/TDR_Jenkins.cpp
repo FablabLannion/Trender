@@ -34,7 +34,7 @@ TDR_Jenkins::TDR_Jenkins(TDR_NeoPixel* n, TDR_ThingSpeak* t) {
 }
 
 TDR_Jenkins::~TDR_Jenkins(){
-	
+	delete _pTS;
 }
 
 void TDR_Jenkins::setStrip(TDR_NeoPixel* s) {

@@ -30,7 +30,7 @@
 
 
 #define  baseSSID  HOSTNAME_PREFIX"-"
-#define  DNS_PORT  53
+#define  TDR_DNS_PORT  53
 
 class TDR_WebServer {
 protected:

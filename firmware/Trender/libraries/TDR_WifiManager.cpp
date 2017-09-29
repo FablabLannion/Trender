@@ -25,6 +25,7 @@ bool shouldSaveConfig=false;
 TDR_WifiManager::TDR_WifiManager() {
 	_pwman = NULL;
 	strcpy(_tsChannelId,"");
+	strcpy(_timeKeeperMode,"0");
 }
 
 TDR_WifiManager::~TDR_WifiManager(){
@@ -57,7 +58,26 @@ int  TDR_WifiManager::setup() {
 				if (json.success()) {
 					Serial.println("\nparsed json");
 
-					strcpy(_tsChannelId, json["tsChannelId"]);
+					if(!json.containsKey("_tsChannelId"))
+						strcpy(_tsChannelId,"0");
+					else {
+						const char* s=json["_tsChannelId"].asString();
+						if(s==NULL) 
+							strcpy(_tsChannelId,"0");
+						else {
+							strcpy(_tsChannelId, json["tsChannelId"]);
+						}
+					}
+					if(!json.containsKey("timeKeeperMode"))
+						strcpy(_timeKeeperMode,"0");
+					else {
+						const char* s=json["timeKeeperMode"].asString();
+						if(s==NULL) 
+							strcpy(_timeKeeperMode,"0");
+						else {
+							strcpy(_timeKeeperMode, json["timeKeeperMode"]);
+						}
+					}
 
 				} else {
 					Serial.println("failed to load json config");
@@ -71,38 +91,54 @@ int  TDR_WifiManager::setup() {
 	if(_pwman==NULL) {
 		_pwman = new WiFiManager();
 	}
-
-	WiFiManagerParameter custom_text("<p>ThingSpeak Channel ID:</p>");
+	int i=0;
+	
+	Serial.println(i++);
+	
+	WiFiManagerParameter custom_text("<h3>ThingSpeak Channel ID:</h3>");
 	_pwman->addParameter(&custom_text);
 /*                                            id/name   placeholder/prompt     default length */
 	WiFiManagerParameter tsChannelIdParam = WiFiManagerParameter("channel","ThingSpeak Channel ID",_tsChannelId,16);
 	_pwman->addParameter(&tsChannelIdParam);
 
+	Serial.println(i++);
+
+	WiFiManagerParameter custom_text2("<h3>timeKeeper Mode (0 for disable)</h3>");
+	_pwman->addParameter(&custom_text2);
+	WiFiManagerParameter timeKeeperModeParam = WiFiManagerParameter("timeKeeperMode","switch to timeKeeperMode",_timeKeeperMode,1);
+	_pwman->addParameter(&timeKeeperModeParam);
+
+	Serial.println(i++);
+
 	//set config save notify callback
 	_pwman->setSaveConfigCallback(saveConfigCallback);
-	
-	// bool shouldSaveConfig=true;
-	// //save the custom parameters to FS
-	// if (shouldSaveConfig) {
-	// 	Serial.println("saving config");
-	// 	DynamicJsonBuffer jsonBuffer;
-	// 	JsonObject& json = jsonBuffer.createObject();
-	// 	json["tsChannelId"] = _tsChannelId;
 
-	// 	File configFile = SPIFFS.open("/config.json", "w");
-	// 	if (!configFile) {
-	// 		Serial.println("failed to open config file for writing");
-	// 	}
+	Serial.println(i++);
 
-	// 	json.printTo(Serial);
-	// 	json.printTo(configFile);
-	// 	configFile.close();
-	// 	//end save
-	// }
 	WiFi.macAddress(_mac);
 	snprintf (_ssid, 13, "Trender-%02X%02X", _mac[4], _mac[5]);
 
+	Serial.println(i++);	
+
 	if( ! _pwman->autoConnect(_ssid) ) {
+		
+		Serial.println(i++);
+
+		Serial.println(__FUNCTION__);
+		Serial.print("_timeKeeperMode=");
+		Serial.println(_timeKeeperMode);
+		Serial.print(" ; timeKeeperModeParam=");
+
+		Serial.println(i++);
+
+		Serial.println(timeKeeperModeParam.getValue());
+		
+		Serial.println(i++);
+		if(timeKeeperModeParam.getValue()!="0"){
+			strcpy(_timeKeeperMode,"0");
+			return TDR_ERROR_3;
+		}
+
 		Serial.println("failed to connect and hit timeout");
     	delay(3000);
     	//reset and try again, or maybe put it to deep sleep
@@ -110,6 +146,12 @@ int  TDR_WifiManager::setup() {
 		delay(5000);
 	}
 
+	Serial.println(i++);
+
+	if(timeKeeperModeParam.getValue()!="0"){
+		strcpy(_timeKeeperMode,"0");
+		return TDR_ERROR_3;
+	}
 	//if you get here you have connected to the WiFi
 	Serial.print("connected...yeey :)");	
 	///Serial.print(tsChannelIdParam.getValue());
@@ -125,6 +167,7 @@ int  TDR_WifiManager::setup() {
 		DynamicJsonBuffer jsonBuffer;
 		JsonObject& json = jsonBuffer.createObject();
 		json["tsChannelId"] = _tsChannelId;
+		json["timeKeeperMode"] = _timeKeeperMode;
 
 		File configFile = SPIFFS.open("/config.json", "w");
 		if (!configFile) {
