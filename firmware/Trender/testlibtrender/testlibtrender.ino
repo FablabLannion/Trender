@@ -21,7 +21,8 @@
 
 #include "Trender.h"
 
-Trender myTrender(TDR_USG_TIMEKEEPER);
+//Trender myTrender(TDR_USG_TIMEKEEPER);
+Trender myTrender(TDR_USG_THINGSPEAK);
 
 void setup() {
   Serial.begin(115200);
