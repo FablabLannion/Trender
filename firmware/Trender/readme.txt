@@ -3,17 +3,20 @@
 
 # This is a first commit (ie code is perfectible :-)
 # At this point, this code supports: 
-* Color: pick a color and run rainbow mode
+* Thinkspeak mode
 * Timekeeper mode
+* (inside Timekeeper mode) Color mode: pick a color and run rainbow mode
 
 # How to add this library
-* rename "libraries" folder to "Trender"
-* create a zip file and add the "Trender" (the one you've just renamed)
+* In "TRENDER_PATH/libraries" folder 
+* create a zip file and add the "Trender" folder
+* Apply same step to create another zip file and add the "WiFiManager" folder
 * open the Arduino IDE 
 * in the "Sketch" menu, select "include a library" > "add the library .ZIP"
 * choose the Trender.zip file you created
+* repeat last steps for WiFiManager.zip file
 
-# you can open the sketch "testlibtrender" 
+# As an example, you can open the sketch "testlibtrender" 
 
 # Warnings 
 * Compilator warns on deprecated usage of char* -> to be replaced by the 
@@ -22,11 +25,11 @@ usage of `String` class
 # TODO
 * improve the design :)
 * add Doxygen comments to create code documentation
-* add the Thinkspeak connector
-* add Jenkins usage
+* support new usages! 
 
 
 -------------------------------------------------------------------------------
+# first and ancestral content (in french)
 
 # Cahier des charges
 

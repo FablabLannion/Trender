@@ -1,0 +1,77 @@
+# ##
+ #  This file is part of Trender.
+ #
+ #  This program is free software: you can redistribute it and/or modify
+ #  it under the terms of the GNU General Public License as published by
+ #  the Free Software Foundation, either version 3 of the License, or
+ #  (at your option) any later version.
+ #
+ #  This program is distributed in the hope that it will be useful,
+ #  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ #  GNU General Public License for more details.
+ #
+ #  You should have received a copy of the GNU General Public License
+ #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ #
+ #  Copyright 2016 Jérôme Labidurie jerome@labidurie.fr
+ #  Copyright 2016 Cédric Bernard cedric.bernard@galilabs.com
+ #  Copyright 2016 Julien Jacques julien.jacques@galilabs.com
+# ##
+ 
+#######################################
+# Syntax Coloring Map For Trender
+####################################### 
+# Class
+#######################################
+
+Trender				KEYWORD1
+
+#######################################
+# Methods and Functions 
+#######################################	
+
+setup				KEYWORD2
+run					KEYWORD2
+
+setWebServer		KEYWORD2
+setWifiManager  	KEYWORD2
+
+getWebServer		KEYWORD2
+getWifiManager  	KEYWORD2
+
+loadWebPages		KEYWORD2
+serveWebRequest		KEYWORD2
+
+setupDevices		KEYWORD2
+showDevicesType		KEYWORD2
+findFirstDeviceOf	KEYWORD2
+findAllDevicesOf	KEYWORD2
+findAllUsagesOf		KEYWORD2
+
+addDevice			KEYWORD2
+addUsage			KEYWORD2
+
+modeDemo			KEYWORD2
+
+err_msg				KEYWORD2
+showNameVersion		KEYWORD2
+showAllDevicesOf	KEYWORD2
+
+#######################################
+# Constants
+#######################################
+
+TDR_VERSION			LITERAL1
+
+TDR_NOUSAGE			LITERAL1
+TDR_USG_TIMEKEEPER	LITERAL1
+TDR_USG_THINGSPEAK	LITERAL1
+
+TDR_SUCCESS			LITERAL1
+TDR_ERR_1			LITERAL1
+TDR_ERR_2			LITERAL1
+TDR_ERR_3			LITERAL1
+
+TDR_FALSE			LITERAL1
+TDR_TRUE			LITERAL1
