@@ -93,13 +93,13 @@ uint8_t TDR_ThingSpeak::interact() {
 			printUserData(&userData);
 		}
 		else {
-			Serial.printf("%s:%s::parseUserData failed\n",__FILE__,__FUNCTION__);
+			Serial.printf("%s::parseUserData failed\n",__FUNCTION__);
 			_errors++;
 			return TDR_ERROR_2;
 		}
 	}
 	else {
-		Serial.printf("%s:%s::3conditions= failed\n",__FILE__,__FUNCTION__);
+		Serial.printf("%s::3conditions= failed\n",__FUNCTION__);
 		_errors++;
 		return TDR_ERROR_3;
 	}
