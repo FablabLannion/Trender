@@ -89,25 +89,19 @@ uint8_t TDR_ThingSpeak::interact() {
 		delay(2000);
 		readResponseContent(response, sizeof(response));
 		TS_UserData userData;
-		if (parseUserData(response, &userData)) {
-			if(printUserData(&userData)!=TDR_SUCCESS) {
-				_errors++;
-				return TDR_ERROR_1;
-			}
-			else {
-				_errors=0;
-			}
+		if (parseUserData(response, &userData)==TDR_SUCCESS) {
+			printUserData(&userData);
 		}
 		else {
+			Serial.printf("%s:%s::parseUserData failed\n",__FILE__,__FUNCTION__);
 			_errors++;
-			return TDR_ERROR_1;
+			return TDR_ERROR_2;
 		}
-
-		
 	}
 	else {
+		Serial.printf("%s:%s::3conditions= failed\n",__FILE__,__FUNCTION__);
 		_errors++;
-		return TDR_ERROR_1;
+		return TDR_ERROR_3;
 	}
 
 	return TDR_SUCCESS;
@@ -387,7 +381,7 @@ uint8_t TDR_ThingSpeak::printUserData(TS_UserData* userData) {
 	else { 
 		Serial.println("go to bed...");
 		_newSampleDetected=0;
-		return TDR_ERROR_1;
+		//return TDR_ERROR_1;
 	}
 
 	return TDR_SUCCESS;
@@ -459,7 +453,7 @@ unsigned char TDR_ThingSpeak::get_last_code() {
 uint8_t TDR_ThingSpeak::getNumErrors() {
 	Serial.print(__FUNCTION__);
 	Serial.print(" = ");
-	Serial.println("_errors");
+	Serial.println(_errors);
 	return _errors;
 }
 
