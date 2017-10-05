@@ -170,6 +170,7 @@ class WiFiManager
 
     boolean       connect;
     boolean       _debug = true;
+    boolean       _timeKeeperMode = false;
 
     void (*_apcallback)(WiFiManager*) = NULL;
     void (*_savecallback)(void) = NULL;

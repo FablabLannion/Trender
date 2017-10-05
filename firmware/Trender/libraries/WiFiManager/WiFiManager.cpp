@@ -171,6 +171,11 @@ boolean  WiFiManager::startConfigPortal(char const *apName, char const *apPasswo
     //HTTP
     server->handleClient();
 
+    if(_timeKeeperMode) {
+      //Serial.printf("%s:%s::timeKeeperMode -> return",__FILE__,__FUNCTION__);
+      _timeKeeperMode=false;
+      return false;
+    }
 
     if (connect) {
       connect = false;
@@ -231,6 +236,8 @@ int WiFiManager::connectWifi(String ssid, String pass) {
   } else {
     if (WiFi.SSID()) {
       DEBUG_WM("Using last saved values, should be faster");
+      Serial.printf("SSID:%s\n",WiFi.SSID().c_str());
+
       //trying to fix connection in progress hanging
       ETS_UART_INTR_DISABLE();
       wifi_station_disconnect();
@@ -548,6 +555,16 @@ void WiFiManager::handleWifiSave() {
     DEBUG_WM(F("Parameter"));
     DEBUG_WM(_params[i]->getID());
     DEBUG_WM(value);
+
+    /// hack Trender
+    if( (_params[i]->getID()=="timeKeeperMode") && ( value!="0" )) {
+      DEBUG_WM(F("Trender::"));
+      DEBUG_WM(F("TimeKeeper Mode detected!!!"));
+      _timeKeeperMode=true;
+      DEBUG_WM(F("switch to TK"));
+      return;
+    }
+    ///
   }
 
   if (server->arg("ip") != "") {
