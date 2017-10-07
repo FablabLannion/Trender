@@ -1,3 +1,35 @@
+# Arduino Library for Trender
+# compatible with Arduino IDE 1.6.12 or above
+
+# This is a first commit (ie code is perfectible :-)
+# At this point, this code supports: 
+* Thinkspeak mode
+* Timekeeper mode
+* (inside Timekeeper mode) Color mode: pick a color and run rainbow mode
+
+# How to add this library
+* In "TRENDER_PATH/libraries" folder 
+* create a zip file and add the "Trender" folder
+* Apply same step to create another zip file and add the "WiFiManager" folder
+* open the Arduino IDE 
+* in the "Sketch" menu, select "include a library" > "add the library .ZIP"
+* choose the Trender.zip file you created
+* repeat last steps for WiFiManager.zip file
+
+# As an example, you can open the sketch "testlibtrender" 
+
+# Warnings 
+* Compilator warns on deprecated usage of char* -> to be replaced by the 
+usage of `String` class
+
+# TODO
+* improve the design :)
+* add Doxygen comments to create code documentation
+* support new usages! 
+
+
+-------------------------------------------------------------------------------
+# first and ancestral content (in french)
 
 # Cahier des charges
 

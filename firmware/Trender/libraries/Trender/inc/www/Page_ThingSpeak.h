@@ -1,3 +1,6 @@
+#ifndef __TDR_PAGE_THINGPSEAK_H__
+#define __TDR_PAGE_THINGPSEAK_H__
+
 /**
  *  This file is part of Trender.
  *
@@ -19,32 +22,25 @@
  *  Copyright 2016 Julien Jacques julien.jacques@galilabs.com
  */
 
-#ifndef PAGE_INFOMATION_H
-#define PAGE_INFOMATION_H
-
-
 //
 //   The HTML PAGE
 //
-const char PAGE_Information[]  = R"=====(
+const char PAGE_ThingSpeak[]  = R"=====(
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link rel="stylesheet" href="style.css" type="text/css" />
 <script src="microajax.js"></script>
-<a href="/"  class="btn btn--s"><</a>&nbsp;&nbsp;<strong>Network Information</strong>
+<a href="/"  class="btn btn--s"><</a>&nbsp;&nbsp;<strong>ThingSpeak Mode enabled, reset device to go back to Configuration Mode</strong>
 <hr>
-<table border="0"  cellspacing="0" cellpadding="3" style="width:310px" >
-<tr><td align="right">SSID :</td><td><span id="x_ssid"></span></td></tr>
-<tr><td align="right">IP :</td><td><span id="x_ip"></span></td></tr>
-<tr><td align="right">Mac :</td><td><span id="x_mac"></span></td></tr>
-
-<tr><td colspan="2" align="center"><a href="javascript:GetState()" class="btn btn--m btn--blue">Refresh</a></td></tr>
+<table border="0"  cellspacing="0" cellpadding="3" style="width:310px" > 
+<tr><td align="right">ChannelID :</td><td><span id="x_channelid"></span></td></tr>
+<tr><td colspan="2" align="center"><a href="javascript:GetThingSpeakState()" class="btn btn--m btn--blue">Refresh</a></td></tr>
 </table>
 <script>
 
-function GetState()
+function GetThingSpeakState()
 {
-  setValues("/admin/infovalues");
+  setValues("/admin/infothingspeak");
 }
 
 window.onload = function ()
@@ -53,7 +49,7 @@ window.onload = function ()
   {
     load("microajax.js","js", function()
     {
-        GetState();
+        GetThingSpeakState();
     });
   });
 }
@@ -64,32 +60,26 @@ function load(e,t,n){if("js"==t){var a=document.createElement("script");a.src=e,
 </script>
 )=====" ;
 
-String GetMacAddress()
-{
-  uint8_t mac[6];
-    char macStr[18] = {0};
-  WiFi.macAddress(mac);
-    sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0],  mac[1], mac[2], mac[3], mac[4], mac[5]);
-    return  String(macStr);
-}
+
+
 
 
 //
 // FILL WITH INFOMATION
 //
 
-void send_information_values_html ()
+void send_thingspeak_values_html ()
 {
 
   String values ="";
 
-  values += "x_ssid|" + (String)mySSID +  "|div\n";
-  values += "x_ip|" +  (String) WiFi.softAPIP()[0] + "." +  (String) WiFi.softAPIP()[1] + "." +  (String) WiFi.softAPIP()[2] + "." + (String) WiFi.softAPIP()[3] +  "|div\n";
-  values += "x_mac|" + GetMacAddress() +  "|div\n";
+  values += "x_channelid|" + (String)channelID +  "|div\n";
   server.send ( 200, "text/plain", values);
   Serial.println(__FUNCTION__);
+  
+  thingSpeakMode=1;
+  tkt.detach();
 
 }
-
 
 #endif

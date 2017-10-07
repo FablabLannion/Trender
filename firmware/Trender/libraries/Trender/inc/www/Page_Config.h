@@ -1,3 +1,6 @@
+#ifndef __TDR_PAGE_CONFIG_H__
+#define __TDR_PAGE_CONFIG_H__
+
 /**
  *  This file is part of Trender.
  *
@@ -19,71 +22,40 @@
  *  Copyright 2016 Julien Jacques julien.jacques@galilabs.com
  */
 
-#ifndef PAGE_THINGPSEAK_H
-#define PAGE_THINGPSEAK_H
 
-
-//
-//   The HTML PAGE
-//
-const char PAGE_ThingSpeak[]  = R"=====(
+const char PAGE_Config[] = R"=====(
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link rel="stylesheet" href="style.css" type="text/css" />
 <script src="microajax.js"></script>
-<a href="/"  class="btn btn--s"><</a>&nbsp;&nbsp;<strong>ThingSpeak Mode enabled, reset device to go back to Configuration Mode</strong>
+<a href="/"  class="btn btn--s"><</a>&nbsp;&nbsp;<strong>Configuration</strong>
 <hr>
-<table border="0"  cellspacing="0" cellpadding="3" style="width:310px" > 
-<tr><td align="right">ChannelID :</td><td><span id="x_channelid"></span></td></tr>
-<tr><td colspan="2" align="center"><a href="javascript:GetThingSpeakState()" class="btn btn--m btn--blue">Refresh</a></td></tr>
-</table>
+<form action="" method="post">
+Duration: <input type="number" id="dur" name="dur" maxlength="3" size="3" min="1"> minutes<br/>
+
+1st: <input type="color" id="col1" name="col1"> <input type="number" id="per1" name="per1" maxlength="3" size="3" max="99"> % <br/>
+2nd: <input type="color" id="col2" name="col2"> <input type="number" id="per2" name="per2" maxlength="3" size="3" max="100"> % <br/>
+3th: <input type="color" id="col3" name="col3"> <br/>
+<!--<input type="checkbox" id="hb" name="hb"> Heartbeat <br/>-->
+
+<input type="submit" style="width:150px" class="btn btn--m btn--blue" value="Set">
+</form>
 <script>
-
-function GetThingSpeakState()
-{
-  setValues("/admin/infothingspeak");
-}
-
 window.onload = function ()
 {
   load("style.css","css", function()
   {
     load("microajax.js","js", function()
     {
-        GetThingSpeakState();
+        setValues("/config/values");
     });
   });
 }
 function load(e,t,n){if("js"==t){var a=document.createElement("script");a.src=e,a.type="text/javascript",a.async=!1,a.onload=function(){n()},document.getElementsByTagName("head")[0].appendChild(a)}else if("css"==t){var a=document.createElement("link");a.href=e,a.rel="stylesheet",a.type="text/css",a.async=!1,a.onload=function(){n()},document.getElementsByTagName("head")[0].appendChild(a)}}
 
-
-
 </script>
-)=====" ;
 
-
-
-
-
-//
-// FILL WITH INFOMATION
-//
-
-void send_thingspeak_values_html ()
-{
-
-  String values ="";
-
-  values += "x_channelid|" + (String)channelID +  "|div\n";
-  server.send ( 200, "text/plain", values);
-  Serial.println(__FUNCTION__);
-  
-  thingSpeakMode=1;
-  tkt.detach();
-  
- 
-  
-
-}
+)=====";
 
 #endif
+

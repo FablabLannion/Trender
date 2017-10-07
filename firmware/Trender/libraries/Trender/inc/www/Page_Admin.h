@@ -1,3 +1,6 @@
+#ifndef __TDR_PAGE_ADMIN_H__
+#define __TDR_PAGE_ADMIN_H__
+
 /**
  *  This file is part of Trender.
  *
@@ -24,9 +27,9 @@ const char PAGE_AdminMainPage[]  = R"=====(
 <strong>Administration</strong>
 <hr>
 <a href="info"   style="width:250px"  class="btn btn--m btn--blue" >Network Information</a><br>
-<a href="thingspeak"   style="width:250px"  class="btn btn--m btn--blue" >Set ThingSpeak Mode</a><br>
-<a href="config"   style="width:250px"  class="btn btn--m btn--blue" >TimeKeeper Configuration</a><br>
-<!-- <a href="color"   style="width:250px"  class="btn btn--m btn--blue" >Color</a><br> -->
+<!-- <a href="thingspeak"   style="width:250px"  class="btn btn--m btn--blue" >Set ThingSpeak Mode</a><br>-->
+<a href="config"   style="width:250px"  class="btn btn--m btn--blue" >TimeKeeper Configuration</a><br> 
+<a href="color"   style="width:250px"  class="btn btn--m btn--blue" >Color</a><br>
 <a href="start"   style="width:250px"  class="btn btn--m btn--blue" >Start TimeKeeper</a>
 <a href="stop"   style="width:250px"  class="btn btn--m btn--blue" >Stop TimeKeeper</a><br>
 
@@ -48,4 +51,4 @@ function load(e,t,n){if("js"==t){var a=document.createElement("script");a.src=e,
 
 )=====";
 
-
+#endif

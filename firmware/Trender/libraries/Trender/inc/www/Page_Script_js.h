@@ -1,3 +1,6 @@
+#ifndef __TDR_PAGE_SCRIPT_H__
+#define __TDR_PAGE_SCRIPT_H__
+
 /**
  *  This file is part of Trender.
  *
@@ -47,3 +50,4 @@ function setValues(url)
 
 )=====";
 
+#endif 
