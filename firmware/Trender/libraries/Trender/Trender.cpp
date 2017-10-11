@@ -19,7 +19,7 @@
  *  Copyright 2016 Julien Jacques julien.jacques@galilabs.com
  */
 
-#include "trender.h"
+#include "Trender.h"
 #include "inc/TDR_NeoPixel.h"
 #include "inc/TDR_Usg_TimeKeeper.h"
 #include "inc/TDR_Usg_ThingSpeak.h"
