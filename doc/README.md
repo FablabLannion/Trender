@@ -20,7 +20,7 @@ The procedure to setup your Trender is:
 
 You should see the following screen:
 
-![Main screen](/screenshots/main.png)
+![Main screen](screenshots/main.png)
 
  1. Configure WiFi
  2. Configure WiFi (No Scan)
@@ -69,7 +69,7 @@ Trender allows to set 3 fully customizable thresholds.
 From the WiFi configure menu, once you set *1* in the mode window, come back to
 the main page. A new menu will be displayed.
 
-![Color](/screenshots/tk.png)
+![Color](screenshots/tk.png)
 
 Select the menu **TIMEKEEPER CONFIGURATION**
 
@@ -79,7 +79,7 @@ You can configure:
  * the duration
  * 3 intermediate steps
 
-![Color](/screenshots/color.png)
+![Color](screenshots/color.png)
 
 
 ### Notification system
@@ -88,7 +88,7 @@ The Trender may translate web information into light.
 You must configure a web public access point. You must select the SSID and
 enter the password. Then you must select the ThingSpeak channel ID.
 
-![Color](/screenshots/ThingSpeak.png)
+![Notif](screenshots/ThingSpeak.png)
 
 
 ### Demo
