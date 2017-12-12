@@ -21,7 +21,8 @@
 
 #include "Trender.h"
 #include "inc/TDR_NeoPixel.h"
-#include "inc/TDR_Usg_TimeKeeper.h"
+//#include "inc/TDR_Usg_TimeKeeper.h"
+#include "inc/TDR_Usg_TimeKeeperWithPushButton.h"
 #include "inc/TDR_Usg_ThingSpeak.h"
 
 // class Trender
@@ -71,7 +72,8 @@ Trender::Trender(TDR_USAGES_t u=TDR_NOUSAGE)
 		_webserver        = new TDR_WebServer();
 		_wifiman          = NULL;
 		_devices.push_back(astrip);     
-		_usages.push_back(new TDR_Usg_TimeKeeper(astrip));
+		//_usages.push_back(new TDR_Usg_TimeKeeper(astrip));
+		_usages.push_back(new TDR_Usg_TimeKeeperWithPushButton(astrip,D4));
 		_uv               = _uv|(1<<TDR_USG_TIMEKEEPER);
 		break;
 
@@ -191,7 +193,8 @@ uint8_t Trender::setup() {
 			
 			std::list<TDR_Device*>* ldevices =   findAllDevicesOf("neopixel");
 			TDR_NeoPixel* astrip = (TDR_NeoPixel*) (ldevices->front());
-			_usages.push_back(new TDR_Usg_TimeKeeper(astrip));
+			//_usages.push_back(new TDR_Usg_TimeKeeper(astrip));
+			_usages.push_back(new TDR_Usg_TimeKeeperWithPushButton(astrip,D4));
 			_uv               = 0;
 			_uv               = _uv|(1<<TDR_USG_TIMEKEEPER);
 		}
@@ -334,7 +337,8 @@ int  Trender::loadWebPages() {
 	TDR_NeoPixel*            pneopix=(TDR_NeoPixel*)(*it);
 	std::list<TDR_Usage*>*   ltimekeeper=(std::list<TDR_Usage*>*) findAllUsagesOf("timekeeper");
 	std::list<TDR_Usage*>::iterator itk=ltimekeeper->begin();
-	TDR_Usg_TimeKeeper*          ptimekeeper=(TDR_Usg_TimeKeeper*)(*itk);
+	//TDR_Usg_TimeKeeper*          ptimekeeper=(TDR_Usg_TimeKeeper*)(*itk);
+	TDR_Usg_TimeKeeperWithPushButton*          ptimekeeper=(TDR_Usg_TimeKeeperWithPushButton*)(*itk);
 
 	Serial.println(__FUNCTION__);
 

@@ -1,5 +1,5 @@
-#ifndef __TDR_DEVICE_H__
-#define __TDR_DEVICE_H__
+#ifndef __TDR_PUSH_BUTTON_H__
+#define __TDR_PUSH_BUTTON_H__
 
 /**
  *  This file is part of Trender.
@@ -21,21 +21,31 @@
  *  Copyright 2016 Cédric Bernard cedric.bernard@galilabs.com
  *  Copyright 2016 Julien Jacques julien.jacques@galilabs.com
  */
- 
-#include <Arduino.h>
-#include "Trender_defs.h"
 
-class TDR_Device {
+#include "TDR_Activator.h"
+
+
+
+class TDR_PushButton : public TDR_Activator { 
 protected:
-	char* _type;
+	char*     _type = "pushbutton";
+    uint8_t   _pin;
+
 public:
-	TDR_Device();
-	~TDR_Device();
-	virtual uint8_t setup()=0;
-	virtual uint8_t showError()=0;
-	virtual uint8_t showOK()=0;
-	virtual uint8_t showChangeMode()=0;
-	virtual char*   get_type()=0;
+	TDR_PushButton();
+	TDR_PushButton(uint8_t p);
+	~TDR_PushButton();
+
+	uint8_t setup();
+    uint8_t getVal();
+
+    uint8_t showError();
+    uint8_t showOK();
+    uint8_t showChangeMode();
+
+    char*   get_type();
 };
+
+
 
 #endif

@@ -1,6 +1,3 @@
-#ifndef __TDR_DEVICE_H__
-#define __TDR_DEVICE_H__
-
 /**
  *  This file is part of Trender.
  *
@@ -21,21 +18,47 @@
  *  Copyright 2016 Cédric Bernard cedric.bernard@galilabs.com
  *  Copyright 2016 Julien Jacques julien.jacques@galilabs.com
  */
- 
-#include <Arduino.h>
-#include "Trender_defs.h"
 
-class TDR_Device {
-protected:
-	char* _type;
-public:
-	TDR_Device();
-	~TDR_Device();
-	virtual uint8_t setup()=0;
-	virtual uint8_t showError()=0;
-	virtual uint8_t showOK()=0;
-	virtual uint8_t showChangeMode()=0;
-	virtual char*   get_type()=0;
-};
+#include "inc/TDR_PushButton.h"
 
-#endif
+
+TDR_PushButton::TDR_PushButton() {
+    _pin=0xff;
+}
+
+TDR_PushButton::TDR_PushButton(uint8_t p) {
+    _pin=p;
+}
+
+TDR_PushButton::~TDR_PushButton() {
+
+}
+
+uint8_t TDR_PushButton::setup() {
+    return TDR_SUCCESS;
+}
+
+uint8_t TDR_PushButton::getVal() {
+    uint8_t ret=0xff;
+    if(_pin!=0xff) {
+        ret=digitalRead(_pin);
+    }
+    return ret;
+}
+
+uint8_t TDR_PushButton::showError() {
+    return TDR_SUCCESS;
+}
+uint8_t TDR_PushButton::showOK() {
+    return TDR_SUCCESS;
+}
+uint8_t TDR_PushButton::showChangeMode() {
+    return TDR_SUCCESS;
+}
+
+
+char *TDR_PushButton::get_type(){
+    return _type;
+}
+
+/* end of file */

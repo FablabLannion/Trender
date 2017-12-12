@@ -22,7 +22,7 @@
 #include "inc/Trender_defs.h"
 #include "inc/TDR_NeoPixel.h"
 
-// class TDR_NeoPixel : public TDR_Sensor_in  
+// class TDR_NeoPixel : public TDR_Activator
 TDR_NeoPixel::TDR_NeoPixel(){
 	_no_leds=0; 
   _sig_pin=0; 
