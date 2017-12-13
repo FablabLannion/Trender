@@ -69,7 +69,7 @@ public:
 
 public:
 	TDR_Usg_TimeKeeperWithPushButton();
-	TDR_Usg_TimeKeeperWithPushButton(TDR_NeoPixel* n,uint8_t buttonPin);
+	TDR_Usg_TimeKeeperWithPushButton(TDR_NeoPixel* n,TDR_PushButton* b);
 	~TDR_Usg_TimeKeeperWithPushButton();
 
 	int  start();

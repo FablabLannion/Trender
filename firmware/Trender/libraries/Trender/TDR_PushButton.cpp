@@ -34,14 +34,24 @@ TDR_PushButton::~TDR_PushButton() {
 
 }
 
+uint8_t TDR_PushButton::setPin(uint8_t p) {
+    _pin=p;
+}
+
 uint8_t TDR_PushButton::setup() {
+    pinMode(_pin, INPUT);
     return TDR_SUCCESS;
 }
 
 uint8_t TDR_PushButton::getVal() {
     uint8_t ret=0xff;
+    Serial.print(__func__);
     if(_pin!=0xff) {
         ret=digitalRead(_pin);
+        Serial.printf(" :: val=0x%02x\n", ret);
+    }
+    else {
+        Serial.printf(" :: NO VALUE (0x%02x)\n", ret);
     }
     return ret;
 }

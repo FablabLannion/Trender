@@ -42,14 +42,14 @@ TDR_Usg_TimeKeeperWithPushButton::TDR_Usg_TimeKeeperWithPushButton(){
 	EEPROM.begin(512);
 	readConfig();
 }
-TDR_Usg_TimeKeeperWithPushButton::TDR_Usg_TimeKeeperWithPushButton(TDR_NeoPixel* n, uint8_t buttonPin) {
+TDR_Usg_TimeKeeperWithPushButton::TDR_Usg_TimeKeeperWithPushButton(TDR_NeoPixel* n, TDR_PushButton* b) {
     _ptk       = new Ticker();
     _startTime = 0;
     _stopTime  = 0;
     _previousMode = STOPPED;
     _currentMode  = STOPPED;
     _pstrip    = n;
-    _pbutton  = new TDR_PushButton(buttonPin);
+    _pbutton  = b;
 
     // config init
     _config.dur = 1;
@@ -84,7 +84,7 @@ int  TDR_Usg_TimeKeeperWithPushButton::start (void) {
     _pstrip->setColor(_config.colors[2]);
     delay(500);
     
-    if(_ptk==NULL) { Serial.print(__FUNCTION__); Serial.println(": [ERROR] :: _ptk should be instancied"); Serial.println("--> Create one Ticker"); }
+    if(_ptk==NULL) { Serial.print(__FUNCTION__); Serial.println(": [ERROR] :: _ptk should be instanced"); Serial.println("--> Create one Ticker"); }
     _ptk->attach(1, tkTDR_Usg_TimeKeeperWithPushButton, this);
 
     return TDR_SUCCESS;

@@ -36,6 +36,7 @@ public:
 	TDR_PushButton(uint8_t p);
 	~TDR_PushButton();
 
+    uint8_t setPin(uint8_t p);
 	uint8_t setup();
     uint8_t getVal();
 

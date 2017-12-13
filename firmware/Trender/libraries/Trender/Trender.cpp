@@ -54,7 +54,8 @@ Trender::Trender(TDR_Usage* u)
 
 Trender::Trender(TDR_USAGES_t u=TDR_NOUSAGE) 
 {
-	TDR_NeoPixel* astrip=NULL;
+	TDR_NeoPixel*    astrip=NULL;
+    TDR_PushButton*  button=NULL;
 	switch(u) {
 	case TDR_NOUSAGE:
 		/*nothing*/
@@ -66,14 +67,16 @@ Trender::Trender(TDR_USAGES_t u=TDR_NOUSAGE)
 		break;
 
 	case TDR_USG_TIMEKEEPER:
+        button = new TDR_PushButton(D4);
 		Serial.println("Trender:: Timekeeper usage selected!");
 		astrip = new TDR_NeoPixel(8,D2); 
 		_thingSpeakMode   = TDR_FALSE;
 		_webserver        = new TDR_WebServer();
 		_wifiman          = NULL;
-		_devices.push_back(astrip);     
+		_devices.push_back(astrip);
+        _devices.push_back(button);
 		//_usages.push_back(new TDR_Usg_TimeKeeper(astrip));
-		_usages.push_back(new TDR_Usg_TimeKeeperWithPushButton(astrip,D4));
+		_usages.push_back(new TDR_Usg_TimeKeeperWithPushButton(astrip,button));
 		_uv               = _uv|(1<<TDR_USG_TIMEKEEPER);
 		break;
 
@@ -191,10 +194,12 @@ uint8_t Trender::setup() {
 
 			_webserver        = new TDR_WebServer();
 			
-			std::list<TDR_Device*>* ldevices =   findAllDevicesOf("neopixel");
-			TDR_NeoPixel* astrip = (TDR_NeoPixel*) (ldevices->front());
+			std::list<TDR_Device*>* lneopix  =   findAllDevicesOf("neopixel");
+			TDR_NeoPixel*       astrip = (TDR_NeoPixel*) (lneopix->front());
+            std::list<TDR_Device*>* lpshbtt  =   findAllDevicesOf("pushbutton");
+            TDR_PushButton* pushButton = (TDR_PushButton*) (lpshbtt->front());
 			//_usages.push_back(new TDR_Usg_TimeKeeper(astrip));
-			_usages.push_back(new TDR_Usg_TimeKeeperWithPushButton(astrip,D4));
+			_usages.push_back(new TDR_Usg_TimeKeeperWithPushButton(astrip,pushButton));
 			_uv               = 0;
 			_uv               = _uv|(1<<TDR_USG_TIMEKEEPER);
 		}
