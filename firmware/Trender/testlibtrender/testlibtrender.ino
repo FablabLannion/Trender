@@ -21,8 +21,8 @@
 
 #include "Trender.h"
 
-//Trender myTrender(TDR_USG_TIMEKEEPER);
-Trender myTrender(TDR_USG_THINGSPEAK);
+Trender myTrender(TDR_USG_TIMEKEEPER);
+// Trender myTrender(TDR_USG_THINGSPEAK);
 
 void setup() {
   Serial.begin(115200);
@@ -35,7 +35,7 @@ void setup() {
 
 void loop() {
   myTrender.run();
-//  myTrender.modeDemo(); 
+//  myTrender.modeDemo();
 //  delay(100);/* delay=100ms */
 }
 
