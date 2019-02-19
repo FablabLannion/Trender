@@ -51,7 +51,7 @@ Trender::Trender(TDR_Usage* u)
 	_usages.push_back(u);
 }
 
-Trender::Trender(TDR_USAGES_t u=TDR_NOUSAGE) 
+Trender::Trender(TDR_USAGES_t u=TDR_NOUSAGE)
 {
 	TDR_NeoPixel* astrip=NULL;
 	switch(u) {
@@ -66,11 +66,11 @@ Trender::Trender(TDR_USAGES_t u=TDR_NOUSAGE)
 
 	case TDR_USG_TIMEKEEPER:
 		Serial.println("Trender:: Timekeeper usage selected!");
-		astrip = new TDR_NeoPixel(8,D2); 
+		astrip = new TDR_NeoPixel(8,D2);
 		_thingSpeakMode   = TDR_FALSE;
 		_webserver        = new TDR_WebServer();
 		_wifiman          = NULL;
-		_devices.push_back(astrip);     
+		_devices.push_back(astrip);
 		_usages.push_back(new TDR_Usg_TimeKeeper(astrip));
 		_uv               = _uv|(1<<TDR_USG_TIMEKEEPER);
 		break;
@@ -80,7 +80,7 @@ Trender::Trender(TDR_USAGES_t u=TDR_NOUSAGE)
 		astrip = new TDR_NeoPixel(8,D2);
 		_thingSpeakMode = TDR_TRUE;
 		_wifiman        = new TDR_WifiManager();
-		_devices.push_back(astrip);     
+		_devices.push_back(astrip);
 		_usages.push_back(new TDR_Usg_ThingSpeak(astrip,new TDR_ThingSpeak()));
 
 		_uv               = _uv|(1<<TDR_USG_THINGSPEAK);
@@ -126,9 +126,9 @@ uint8_t Trender::run() {
 				res=TDR_ERROR_2;
 			}
 			else {
-				// webconnector->getThingSpeak()->get_last() is now filled 
+				// webconnector->getThingSpeak()->get_last() is now filled
 				// with the last value we can transmit to Neopixels
-	
+
 				if(webconnector->get_last_TDR_mngt()==9){
 					Serial.println("Reconfiguration request !!!");
 					_wifiman->backToConfigure();
@@ -144,7 +144,7 @@ uint8_t Trender::run() {
 						webconnector->color1(color);
 						webconnector->setStripColor(color[0],color[1],color[2]);
 						break;
-					case 1: 
+					case 1:
 						webconnector->color2(color);
 						webconnector->setStripColor(color[0],color[1],color[2]);
 						break;
@@ -177,18 +177,18 @@ uint8_t Trender::setup() {
 		if(_wifiman->setup()==TDR_ERROR_3) {
 			Serial.println("Trender:: Timekeeper usage selected!");
 			_devices.front()->showChangeMode();
-			
+
 			_thingSpeakMode   = TDR_FALSE;
 			_wifiman->backToConfigure();
 			delete _wifiman;
-			
+
 			std::list<TDR_Usage*>* lusages =   findAllUsagesOf("ThingSpeak");
 			TDR_Usg_ThingSpeak* j=(TDR_Usg_ThingSpeak*) (lusages->front());
 			delete j;
 			_usages.pop_front();
 
 			_webserver        = new TDR_WebServer();
-			
+
 			std::list<TDR_Device*>* ldevices =   findAllDevicesOf("neopixel");
 			TDR_NeoPixel* astrip = (TDR_NeoPixel*) (ldevices->front());
 			_usages.push_back(new TDR_Usg_TimeKeeper(astrip));
@@ -201,6 +201,7 @@ uint8_t Trender::setup() {
 	}
 	if(_webserver!=NULL) {
 		_webserver->setup();
+		_webserver->begin();
 		loadWebPages();
 	}
 	return TDR_SUCCESS;
@@ -220,13 +221,13 @@ int     Trender::showDevicesType() {
 		s = *it;
 		Serial.println(s->get_type());
 	}
-	return TDR_SUCCESS;	
+	return TDR_SUCCESS;
 }
 
 TDR_Device& Trender::findFirstDeviceOf(char* type) {
 	std::list<TDR_Device*>::iterator it = _devices.begin();
-	for(; 
-		it != _devices.end() && (strcmp((*it)->get_type(),type)!=0); 
+	for(;
+		it != _devices.end() && (strcmp((*it)->get_type(),type)!=0);
 		it++) ;
 	return (TDR_Device&) *(*it);
 }
@@ -244,7 +245,7 @@ std::list<TDR_Device*>* Trender::findAllDevicesOf(char* type) {
 }
 std::list<TDR_Usage*>* Trender::findAllUsagesOf(char* type) {
 	if(&_usages==NULL) { Serial.print(__FUNCTION__); Serial.println(": [ERROR] :: _usages should be instantiated"); return NULL; }
-	
+
 	///Serial.println(__FUNCTION__);
 	std::list<TDR_Usage*> *lusages=new std::list<TDR_Usage*>();
 	for(std::list<TDR_Usage*>::iterator it = _usages.begin(); it != _usages.end() ; it++) {
@@ -297,7 +298,7 @@ void Trender::modeDemo() {
 //	Serial.println(__FUNCTION__);
 
 	std::list<TDR_Device*> *strips=findAllDevicesOf("neopixel");
-	
+
 	for(std::list<TDR_Device*>::iterator it = strips->begin(); it != strips->end(); it++) {
 		TDR_NeoPixel* a_strip = (TDR_NeoPixel*)(*it);
 		a_strip->modeRainbow();
@@ -344,7 +345,7 @@ int  Trender::loadWebPages() {
   	pserver->on ( "/admin/infovalues", [this]() { send_information_values_html(this->getWebServer()); } );
 /*
   	pserver->on ( "/admin/infothingspeak", send_thingspeak_values_html);
-*/  
+*/
  	pserver->on ( "/info", [pserver]() { Serial.println("info.html"); pserver->send ( 200, "text/html", PAGE_Information );   }  );
 	pserver->on ( "/color", [this,pneopix]() { processColor(this->getWebServer(),pneopix); } );
 	pserver->on ( "/color/values", [this,pneopix]() { sendColorData(this->getWebServer(),pneopix); } );
@@ -353,7 +354,7 @@ int  Trender::loadWebPages() {
 		pserver->on ( "/config/values", [this,ptimekeeper]() { sendConfigData(this->getWebServer(),ptimekeeper);});
 	}
 /*
-  	pserver->on ( "/thingspeak", []() { Serial.println("thingspeak.html"); pserver->send ( 200, "text/html", PAGE_ThingSpeak );   }  );  
+  	pserver->on ( "/thingspeak", []() { Serial.println("thingspeak.html"); pserver->send ( 200, "text/html", PAGE_ThingSpeak );   }  );
   	pserver->on ( "/config/values", []() { Serial.println("Disable ThingSpeak timeout mode"); thingSpeakMode=0;tkt.detach();sendConfigData();});
 */
   	pserver->on ( "/style.css", [pserver]() { Serial.println("style.css"); pserver->send ( 200, "text/plain", PAGE_Style_css );  } );
@@ -363,7 +364,7 @@ int  Trender::loadWebPages() {
   		pserver->on ( "/stop", [pserver,ptimekeeper]() { Serial.println("stop"); ptimekeeper->stop(); pserver->send ( 200, "text/html", PAGE_AdminMainPage ); } );
 	}
   	unsigned int favicon_ico_len = 1406; // here due to multiple declarations issue. TODO: move it in a class
-  	pserver->on ( "/favicon.ico", [pserver,favicon_ico_len]() { Serial.println("favicon"); pserver->send_P(200, "image/x-icon", favicon_ico, favicon_ico_len); } ); 
+  	pserver->on ( "/favicon.ico", [pserver,favicon_ico_len]() { Serial.println("favicon"); pserver->send_P(200, "image/x-icon", favicon_ico, favicon_ico_len); } );
 
   	pserver->onNotFound ( [pserver]() { Serial.println("Page Not Found"); pserver->send ( 404, "text/html", "Page not Found" );   }  );
 
